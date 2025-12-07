@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Classroom Control</title>
+    <title>DIU EEE Building Control</title>
     
     <!-- Import Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -255,7 +255,7 @@
         /* Stats Summary Row */
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 20px;
             width: 100%;
             margin-bottom: 30px;
@@ -278,10 +278,11 @@
             width: 50px; height: 50px;
             border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
+            transition: all 0.3s;
         }
 
-        .stat-info h3 { margin: 0; font-size: 1.4rem; color: var(--text-main); font-weight: 700; }
+        .stat-info h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); font-weight: 700; }
         .stat-info p { margin: 0; font-size: 0.85rem; color: var(--text-light); font-weight: 500; }
 
         /* Main Grid */
@@ -498,7 +499,7 @@
     <div id="dashboard-view">
         <header>
             <div class="header-left">
-                <h1>Smart Classroom</h1>
+                <h1>DIU EEE Building</h1>
                 <p id="user-email-display">Control Panel</p>
             </div>
             <div class="header-right">
@@ -512,26 +513,41 @@
             </div>
         </header>
 
-        <!-- New Stats Row -->
+        <!-- New Stats Row: Condition of Light, Fan, Entrance -->
         <div class="stats-row">
+            <!-- Light Condition -->
             <div class="stat-card">
-                <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
-                    <i class="fas fa-wifi"></i>
+                <div class="stat-icon" id="summary-icon-light" style="background: #f1f5f9; color: #64748b;">
+                    <i class="fas fa-lightbulb"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Online</h3>
-                    <p>System Status</p>
+                    <h3 id="summary-light">--</h3>
+                    <p>Lights</p>
                 </div>
             </div>
+            
+            <!-- Fan Condition -->
             <div class="stat-card">
-                <div class="stat-icon" style="background: #dcfce7; color: #059669;">
-                    <i class="fas fa-bolt"></i>
+                <div class="stat-icon" id="summary-icon-fan" style="background: #f1f5f9; color: #64748b;">
+                    <i class="fas fa-fan"></i>
                 </div>
                 <div class="stat-info">
-                    <h3 id="active-count">0</h3>
-                    <p>Active Devices</p>
+                    <h3 id="summary-fan">--</h3>
+                    <p>Ventilation</p>
                 </div>
             </div>
+            
+            <!-- Entrance Condition -->
+            <div class="stat-card">
+                <div class="stat-icon" id="summary-icon-door" style="background: #f1f5f9; color: #64748b;">
+                    <i class="fas fa-door-closed"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="summary-door">--</h3>
+                    <p>Entrance</p>
+                </div>
+            </div>
+
             <!-- Weather Card -->
             <div class="stat-card">
                 <div class="stat-icon" style="background: #fff7ed; color: #ea580c;">
@@ -771,7 +787,6 @@
                 db.ref(device).on('value', (snapshot) => {
                     const val = snapshot.val(); 
                     updateCard(device, val);
-                    updateActiveCount();
                 });
             });
 
@@ -811,16 +826,51 @@
                     icon.classList.add('fa-door-closed');
                 }
             }
+
+            // --- NEW: UPDATE SUMMARY ROW INDICATORS ---
+            updateSummaryRow(device, val);
         }
 
-        function updateActiveCount() {
-            const cards = document.querySelectorAll('.card[data-state="1"]');
-            let count = 0;
-            cards.forEach(c => {
-                if(c.getAttribute('data-type') !== 'door') count++;
-            });
-            const activeEl = document.getElementById('active-count');
-            if(activeEl) activeEl.innerText = count;
+        function updateSummaryRow(device, val) {
+            if (device === 'light') {
+                const el = document.getElementById('summary-light');
+                const icon = document.getElementById('summary-icon-light');
+                if (val === 1) {
+                    el.innerText = "ON";
+                    icon.style.color = "#ca8a04";
+                    icon.style.background = "#fef9c3";
+                } else {
+                    el.innerText = "OFF";
+                    icon.style.color = "#64748b";
+                    icon.style.background = "#f1f5f9";
+                }
+            }
+            else if (device === 'fan') {
+                const el = document.getElementById('summary-fan');
+                const icon = document.getElementById('summary-icon-fan');
+                if (val === 1) {
+                    el.innerText = "Active";
+                    icon.style.color = "#0284c7";
+                    icon.style.background = "#e0f2fe";
+                } else {
+                    el.innerText = "Silent";
+                    icon.style.color = "#64748b";
+                    icon.style.background = "#f1f5f9";
+                }
+            }
+            else if (device === 'door') {
+                const el = document.getElementById('summary-door');
+                const icon = document.getElementById('summary-icon-door');
+                if (val === 1) {
+                    el.innerText = "Access";
+                    icon.style.color = "#10b981";
+                    icon.style.background = "#dcfce7";
+                } else {
+                    el.innerText = "Secure";
+                    icon.style.color = "#64748b";
+                    icon.style.background = "#f1f5f9";
+                }
+            }
         }
 
         function toggleDevice(device) {
