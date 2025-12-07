@@ -5,27 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Classroom Control</title>
     
-    <!-- Import FontAwesome for Icons -->
+    <!-- Import Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- CSS STYLING --- */
+        /* --- MODERN CSS STYLING --- */
         :root {
-            --primary-color: #4361ee;
-            --bg-color: #f4f7fe;
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #64748b;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-color: #2b3674;
-            --success-color: #05cd99;
-            --danger-color: #ee5d50;
-            --info-color: #8e44ad;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --glass-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            background-image: radial-gradient(#e0e7ff 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
             margin: 0;
-            padding: 0; /* Changed to 0 for full screen login */
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,7 +46,7 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -47,18 +54,35 @@
         }
 
         .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             width: 90%;
             max-width: 400px;
             text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-card i.logo-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 50%;
         }
 
         .login-card h2 {
-            color: var(--primary-color);
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-card p {
+            color: var(--text-light);
             margin-bottom: 30px;
+            font-size: 0.9rem;
         }
 
         .input-group {
@@ -69,153 +93,320 @@
         .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: var(--text-color);
-            font-weight: 600;
+            color: var(--text-main);
+            font-weight: 500;
             font-size: 0.9rem;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             box-sizing: border-box;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            font-family: inherit;
         }
 
         .input-group input:focus {
             border-color: var(--primary-color);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
         }
 
         .login-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
             margin-top: 10px;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
         }
 
-        .login-btn:hover { background: #324bc9; }
+        .login-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
 
         .error-msg {
             color: var(--danger-color);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-top: 15px;
             display: none;
+            background: #fef2f2;
+            padding: 10px;
+            border-radius: 8px;
         }
 
         /* --- DASHBOARD STYLES --- */
         #dashboard-view {
-            display: none; /* Hidden by default */
+            display: none;
             width: 100%;
-            display: flex;
+            max-width: 1200px;
             flex-direction: column;
             align-items: center;
             padding: 20px;
             box-sizing: border-box;
         }
 
+        /* Header Section */
         header {
-            text-align: center;
-            margin-bottom: 40px;
-            margin-top: 20px;
             width: 100%;
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
         }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .header-left p {
+            color: var(--text-light);
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .clock-widget {
+            text-align: right;
+            display: none; /* Hidden on very small mobile */
+        }
+        
+        @media (min-width: 600px) {
+            .clock-widget { display: block; }
+        }
+
+        .clock-time { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
+        .clock-date { font-size: 0.8rem; color: var(--text-light); }
 
         .logout-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: transparent;
+            background: #fef2f2;
             color: var(--danger-color);
-            border: 1px solid var(--danger-color);
-            padding: 5px 15px;
-            border-radius: 20px;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .logout-btn:hover { background: var(--danger-color); color: white; }
 
-        h1 { font-size: 2rem; margin: 0; color: var(--text-color); }
-        p.subtitle { color: #a3aed0; margin-top: 5px; }
+        .logout-btn:hover { background: #fee2e2; }
 
+        /* Stats Summary Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 45px; height: 45px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-info h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
+        .stat-info p { margin: 0; font-size: 0.8rem; color: var(--text-light); }
+
+        /* Main Grid */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 25px;
             width: 100%;
-            max-width: 1000px;
         }
 
+        /* Device Card */
         .card {
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--glass-shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
 
         .icon-container {
-            width: 70px; height: 70px;
-            background-color: #f4f7fe;
-            border-radius: 50%;
+            width: 80px; height: 80px;
+            background-color: #f1f5f9;
+            border-radius: 20px;
             display: flex; align-items: center; justify-content: center;
-            margin-bottom: 15px; font-size: 1.8rem; color: #a3aed0;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #94a3b8;
             transition: all 0.3s ease;
         }
 
-        h2 { font-size: 1.1rem; margin: 0 0 5px 0; font-weight: 600; }
-        .status-text { font-size: 0.9rem; color: #a3aed0; margin-bottom: 20px; font-weight: 500; }
+        .card h2 {
+            font-size: 1.1rem;
+            margin: 0 0 5px 0;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 25px;
+            font-weight: 500;
+            background: #f8fafc;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
 
         button.toggle-btn {
-            background-color: #f4f7fe; color: var(--text-color); border: none;
-            padding: 12px 30px; border-radius: 15px; font-weight: 600;
-            cursor: pointer; transition: all 0.3s ease; width: 100%;
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            border: none;
+            padding: 14px 0;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: inherit;
         }
+
         button.toggle-btn:hover { background-color: #e2e8f0; }
 
-        /* Active States */
-        .card[data-state="1"][data-type="light"] .icon-container { background-color: #fff9c4; color: #fbc02d; box-shadow: 0 0 15px #fff9c4; }
-        .card[data-state="1"][data-type="fan"] .icon-container { background-color: #e3f2fd; color: #2196f3; }
-        .card[data-state="1"][data-type="fan"] .icon-container i { animation: spin 1s linear infinite; }
-        .card[data-state="1"][data-type="curtain"] .icon-container, .card[data-state="1"][data-type="door"] .icon-container { background-color: #e8f5e9; color: var(--success-color); }
-        .card[data-state="1"][data-type="dustbin"] .icon-container { background-color: #ffebee; color: var(--danger-color); }
-        .card[data-state="1"] button.toggle-btn { background-color: var(--primary-color); color: white; box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+        /* --- ACTIVE STATES --- */
+        
+        .card[data-state="1"][data-type="light"] .icon-container { background-color: #fef9c3; color: #eab308; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
+        .card[data-state="1"][data-type="fan"] .icon-container { background-color: #e0f2fe; color: #0ea5e9; }
+        .card[data-state="1"][data-type="fan"] .icon-container i { animation: spin 1.5s linear infinite; }
+        
+        .card[data-state="1"][data-type="curtain"] .icon-container, 
+        .card[data-state="1"][data-type="door"] .icon-container { background-color: #dcfce7; color: var(--success-color); }
+        
+        .card[data-state="1"][data-type="dustbin"] .icon-container { background-color: #fee2e2; color: var(--danger-color); }
 
-        /* Access Log Styles */
-        .card[data-type="access"] .icon-container { background-color: #f3e5f5; color: var(--info-color); }
-        .card[data-type="access"] h2 { margin-bottom: 0; }
-        .access-name { font-size: 1.2rem; font-weight: bold; color: var(--text-color); margin: 5px 0; }
-        .access-time { font-size: 0.85rem; color: #a3aed0; background: #f4f7fe; padding: 4px 10px; border-radius: 10px; margin-top: 5px; }
-        .access-date { font-size: 0.8rem; color: #a3aed0; margin-top: 2px; font-weight: 500; }
+        .card[data-state="1"] button.toggle-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Access Log Styles - Premium Look */
+        .card[data-type="access"] {
+            grid-column: 1 / -1; /* Full width on mobile */
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 40px;
+        }
+        
+        @media (max-width: 600px) {
+            .card[data-type="access"] { flex-direction: column; text-align: center; gap: 15px; }
+        }
+
+        .card[data-type="access"] .icon-container {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            width: 60px; height: 60px;
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .access-info { text-align: left; flex-grow: 1; margin-left: 20px; }
+        @media (max-width: 600px) { .access-info { text-align: center; margin-left: 0; } }
+
+        .card[data-type="access"] h2 { color: rgba(255,255,255,0.9); margin-bottom: 5px; }
+        .access-name { font-size: 1.5rem; font-weight: 700; color: white; }
+        
+        .access-meta {
+            text-align: right;
+            background: rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            border-radius: 12px;
+        }
+        @media (max-width: 600px) { .access-meta { width: 100%; text-align: center; box-sizing: border-box; } }
+
+        .access-time { font-size: 1.2rem; font-weight: 600; display: block; }
+        .access-date { font-size: 0.8rem; opacity: 0.8; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        /* Footer Credits */
+        footer {
+            margin-top: 50px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        .credits span {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Floating Status */
         #connection-status {
             position: fixed; bottom: 20px; right: 20px;
-            background: white; padding: 8px 15px; border-radius: 20px;
-            font-size: 0.8rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex; align-items: center; gap: 8px; z-index: 500;
+            background: white; padding: 10px 20px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 10px; z-index: 500;
+            border: 1px solid #f1f5f9;
         }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
-        .dot.connected { background: var(--success-color); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; transition: background 0.3s; }
+        .dot.connected { background: var(--success-color); box-shadow: 0 0 10px var(--success-color); }
+
     </style>
 </head>
 <body>
@@ -223,43 +414,85 @@
     <!-- 1. LOGIN VIEW -->
     <div id="login-view">
         <div class="login-card">
-            <h2><i class="fas fa-school"></i> Smart Classroom</h2>
+            <i class="fas fa-graduation-cap logo-icon"></i>
+            <h2>Welcome Back</h2>
+            <p>Sign in to manage your Smart Classroom</p>
+            
             <div class="input-group">
-                <label>Email</label>
-                <input type="email" id="email" placeholder="Enter your email">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="name@example.com">
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="password" placeholder="Enter your password">
+                <input type="password" id="password" placeholder="••••••••">
             </div>
-            <button class="login-btn" onclick="login()">Login</button>
-            <p class="error-msg" id="login-error">Invalid Credentials</p>
+            
+            <button class="login-btn" onclick="login()">
+                Sign In <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+            </button>
+            <p class="error-msg" id="login-error"><i class="fas fa-exclamation-circle"></i> Invalid Credentials</p>
         </div>
     </div>
 
     <!-- 2. DASHBOARD VIEW (Hidden by default) -->
-    <div id="dashboard-view" style="display: none;">
+    <div id="dashboard-view">
         <header>
-            <h1>Smart Classroom</h1>
-            <p class="subtitle">IoT Dashboard Control Panel</p>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+            <div class="header-left">
+                <h1>Smart Classroom</h1>
+                <p id="user-email-display">Control Panel</p>
+            </div>
+            <div class="header-right">
+                <div class="clock-widget">
+                    <div class="clock-time" id="clock-time">12:00 PM</div>
+                    <div class="clock-date" id="clock-date">Monday, 01 Jan</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </header>
 
+        <!-- New Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Online</h3>
+                    <p>System Status</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #dcfce7; color: #059669;">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="active-count">0</h3>
+                    <p>Active Devices</p>
+                </div>
+            </div>
+        </div>
+
         <div class="grid-container">
-            <!-- 0. ACCESS LOG -->
+            <!-- 0. ACCESS LOG (Full Width Premium Card) -->
             <div class="card" id="card-access" data-type="access">
-                <div class="icon-container"><i class="fas fa-id-card-clip"></i></div>
-                <h2>Recent Entry</h2>
-                <div class="access-name" id="last-entry-name">Waiting...</div>
-                <div class="access-time" id="last-entry-time">--:--</div>
-                <div class="access-date" id="last-entry-date">--/--/----</div>
+                <div class="icon-container"><i class="fas fa-id-badge"></i></div>
+                <div class="access-info">
+                    <h2>Recent Entry</h2>
+                    <div class="access-name" id="last-entry-name">--</div>
+                </div>
+                <div class="access-meta">
+                    <span class="access-time" id="last-entry-time">--:--</span>
+                    <span class="access-date" id="last-entry-date">--/--/--</span>
+                </div>
             </div>
 
             <!-- 1. LIGHT -->
             <div class="card" id="card-light" data-type="light" data-state="0">
                 <div class="icon-container"><i class="fas fa-lightbulb"></i></div>
-                <h2>Classroom Light</h2>
-                <span class="status-text">OFF</span>
+                <h2>Main Lights</h2>
+                <span class="status-text">Switched OFF</span>
                 <button class="toggle-btn" onclick="toggleDevice('light')">Turn ON</button>
             </div>
 
@@ -267,22 +500,22 @@
             <div class="card" id="card-fan" data-type="fan" data-state="0">
                 <div class="icon-container"><i class="fas fa-fan"></i></div>
                 <h2>Ceiling Fan</h2>
-                <span class="status-text">OFF</span>
-                <button class="toggle-btn" onclick="toggleDevice('fan')">Turn ON</button>
+                <span class="status-text">Stopped</span>
+                <button class="toggle-btn" onclick="toggleDevice('fan')">Start Fan</button>
             </div>
 
             <!-- 3. CURTAIN -->
             <div class="card" id="card-curtain" data-type="curtain" data-state="0">
-                <div class="icon-container"><i class="fas fa-person-booth"></i></div> 
-                <h2>Smart Curtain</h2>
+                <div class="icon-container"><i class="fas fa-warehouse"></i></div> 
+                <h2>Smart Blinds</h2>
                 <span class="status-text">Closed</span>
-                <button class="toggle-btn" onclick="toggleDevice('curtain')">Open Curtain</button>
+                <button class="toggle-btn" onclick="toggleDevice('curtain')">Open Blinds</button>
             </div>
 
             <!-- 4. DUSTBIN -->
             <div class="card" id="card-dustbin" data-type="dustbin" data-state="0">
-                <div class="icon-container"><i class="fas fa-trash-alt"></i></div>
-                <h2>Smart Dustbin</h2>
+                <div class="icon-container"><i class="fas fa-trash"></i></div>
+                <h2>Smart Bin</h2>
                 <span class="status-text">Lid Closed</span>
                 <button class="toggle-btn" onclick="toggleDevice('dustbin')">Open Lid</button>
             </div>
@@ -290,19 +523,25 @@
             <!-- 5. DOOR -->
             <div class="card" id="card-door" data-type="door" data-state="0">
                 <div class="icon-container"><i class="fas fa-door-closed" id="door-icon"></i></div>
-                <h2>Main Entrance</h2>
-                <span class="status-text">Locked</span>
-                <button class="toggle-btn" style="pointer-events: none;">NFC Access</button>
+                <h2>Entrance</h2>
+                <span class="status-text">Securely Locked</span>
+                <button class="toggle-btn" style="opacity: 0.6; cursor: not-allowed;">NFC Key Only</button>
             </div>
         </div>
+
+        <!-- Footer Credits -->
+        <footer>
+            <div class="credits">Developed & Designed by <span>Zion, Rony, Imtiaz</span></div>
+            <div style="margin-top: 5px; font-size: 0.8rem;">&copy; 2024 Smart Classroom Project</div>
+        </footer>
     </div>
 
     <div id="connection-status">
         <div class="dot" id="status-dot"></div>
-        <span id="status-msg">Connecting...</span>
+        <span id="status-msg">Connecting to Classroom...</span>
     </div>
 
-    <!-- Firebase SDKs (Added Auth) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -336,50 +575,82 @@
 
         // --- AUTHENTICATION LOGIC ---
 
-        // Listen for Login State Changes
         auth.onAuthStateChanged((user) => {
             if (user) {
                 // User is logged in
                 loginView.style.display = 'none';
                 dashboardView.style.display = 'flex';
                 document.getElementById('status-dot').classList.add('connected');
-                document.getElementById('status-msg').innerText = "Online: " + user.email;
-                startListening(); // Start data listeners only when logged in
+                document.getElementById('status-msg').innerText = "System Online";
+                document.getElementById('user-email-display').innerText = "Operator: " + user.email.split('@')[0]; // Show name part of email
+                startListening();
+                startTime();
             } else {
                 // User is logged out
                 loginView.style.display = 'flex';
                 dashboardView.style.display = 'none';
                 document.getElementById('status-dot').classList.remove('connected');
-                document.getElementById('status-msg').innerText = "Please Login";
+                document.getElementById('status-msg').innerText = "Offline";
             }
         });
 
-        // Login Function
         function login() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
+            const btn = document.querySelector('.login-btn');
+
+            // Simple loading state
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
 
             auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    // Reset button
+                    btn.innerHTML = 'Sign In <i class="fas fa-arrow-right"></i>';
+                    errorMsg.style.display = 'none';
+                })
                 .catch((error) => {
+                    btn.innerHTML = 'Sign In <i class="fas fa-arrow-right"></i>';
                     errorMsg.style.display = 'block';
-                    errorMsg.innerText = error.message;
+                    errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
                 });
         }
 
-        // Logout Function
         function logout() {
             auth.signOut();
         }
 
-        // --- DATA LOGIC (Runs only after login) ---
+        // --- UTILITY: REAL-TIME CLOCK ---
+        function startTime() {
+            const today = new Date();
+            let h = today.getHours();
+            let m = today.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12; // the hour '0' should be '12'
+            m = checkTime(m);
+            
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            const dateStr = today.toLocaleDateString('en-US', options);
+
+            document.getElementById('clock-time').innerHTML = h + ":" + m + " " + ampm;
+            document.getElementById('clock-date').innerHTML = dateStr;
+            setTimeout(startTime, 1000);
+        }
+
+        function checkTime(i) {
+            if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+            return i;
+        }
+
+        // --- DATA LOGIC ---
         
         const deviceConfig = {
-            light:   { on: "ON", off: "OFF", btnOn: "Turn OFF", btnOff: "Turn ON" },
-            fan:     { on: "Spinning", off: "Stopped", btnOn: "Stop Fan", btnOff: "Start Fan" },
-            curtain: { on: "Open", off: "Closed", btnOn: "Close Curtain", btnOff: "Open Curtain" },
+            light:   { on: "Switched ON", off: "Switched OFF", btnOn: "Turn OFF", btnOff: "Turn ON" },
+            fan:     { on: "Spinning (Active)", off: "Stopped", btnOn: "Stop Fan", btnOff: "Start Fan" },
+            curtain: { on: "Open", off: "Closed", btnOn: "Close Blinds", btnOff: "Open Blinds" },
             dustbin: { on: "Lid Open", off: "Lid Closed", btnOn: "Close Lid", btnOff: "Open Lid" },
-            door:    { on: "UNLOCKED", off: "Locked", btnOn: "NFC Access", btnOff: "NFC Access" }
+            door:    { on: "UNLOCKED", off: "Securely Locked", btnOn: "NFC Access", btnOff: "NFC Access" }
         };
 
         function startListening() {
@@ -390,6 +661,7 @@
                 db.ref(device).on('value', (snapshot) => {
                     const val = snapshot.val(); 
                     updateCard(device, val);
+                    updateActiveCount();
                 });
             });
 
@@ -415,6 +687,8 @@
             if (val === 1) {
                 statusSpan.innerText = deviceConfig[device].on;
                 btn.innerText = deviceConfig[device].btnOn;
+                
+                // Door Icon Logic
                 if(device === 'door') {
                     icon.classList.remove('fa-door-closed');
                     icon.classList.add('fa-door-open');
@@ -422,11 +696,22 @@
             } else {
                 statusSpan.innerText = deviceConfig[device].off;
                 btn.innerText = deviceConfig[device].btnOff;
+                
                 if(device === 'door') {
                     icon.classList.remove('fa-door-open');
                     icon.classList.add('fa-door-closed');
                 }
             }
+        }
+
+        // Count how many devices are ON (excluding door)
+        function updateActiveCount() {
+            const cards = document.querySelectorAll('.card[data-state="1"]');
+            let count = 0;
+            cards.forEach(c => {
+                if(c.getAttribute('data-type') !== 'door') count++;
+            });
+            document.getElementById('active-count').innerText = count;
         }
 
         function toggleDevice(device) {
