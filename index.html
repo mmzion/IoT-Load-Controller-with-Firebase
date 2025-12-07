@@ -1,285 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🔌 Smart Home Dashboard - M. M. Zion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary: #4a90e2;
-      --accent: #00c853;
-      --danger: #e53935;
-      --dark: #263238;
-      --light: #f5f7fa;
-      --white: #ffffff;
-      --shadow: rgba(0, 0, 0, 0.15);
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: var(--light);
-      color: var(--dark);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      padding: 1rem 2rem;
-      text-align: center;
-      color: var(--white);
-      font-size: 1.8rem;
-      font-weight: 700;
-      box-shadow: 0 4px 12px var(--shadow);
-    }
-    .container {
-      flex: 1;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .info-panel {
-      background-color: var(--white);
-      box-shadow: 0 4px 16px var(--shadow);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 30px;
-      width: 100%;
-      max-width: 960px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 20px;
-      font-size: 0.95rem;
-    }
-    .info-panel div {
-      text-align: center;
-      flex: 1;
-    }
-    .info-panel span {
-      font-weight: bold;
-      color: var(--primary);
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    .card {
-      background: var(--white);
-      border-radius: 20px;
-      box-shadow: 0 6px 20px var(--shadow);
-      padding: 25px;
-      width: 260px;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .card h2 {
-      font-size: 1.3rem;
-      margin-bottom: 0.5rem;
-    }
-    .card p {
-      margin-bottom: 1rem;
-    }
-    .card button {
-      background: var(--primary);
-      color: var(--white);
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .card button:hover {
-      background: var(--accent);
-    }
-    .btn-bar {
-      margin-top: 30px;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .btn-bar button {
-      padding: 14px 28px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      color: var(--white);
-      transition: background 0.3s ease;
-    }
-    #allOffBtn {
-      background: var(--danger);
-    }
-    #logoutBtn {
-      background: var(--dark);
-    }
-    #loginForm {
-      max-width: 400px;
-      margin: 3rem auto;
-      background: var(--white);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 6px 20px var(--shadow);
-    }
-    #loginForm input {
-      width: 100%;
-      margin-bottom: 1.2rem;
-      padding: 1rem;
-      font-size: 1rem;
-      border-radius: 12px;
-      border: 1.5px solid #ccc;
-    }
-    #loginForm button {
-      width: 100%;
-      padding: 1rem;
-      background: var(--primary);
-      color: var(--white);
-      font-size: 1rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      background: #eceff1;
-      color: #555;
-    }
-    @media (max-width: 600px) {
-      .card {
-        width: 90%;
-      }
-      .info-panel {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Classroom Control</title>
+    
+    <!-- Import FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CSS STYLING --- */
+        :root {
+            --primary-color: #4361ee;
+            --bg-color: #f4f7fe;
+            --card-bg: #ffffff;
+            --text-color: #2b3674;
+            --success-color: #05cd99;
+            --danger-color: #ee5d50;
+            --info-color: #8e44ad;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0; /* Changed to 0 for full screen login */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- LOGIN PAGE STYLES --- */
+        #login-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover { background: #324bc9; }
+
+        .error-msg {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        #dashboard-view {
+            display: none; /* Hidden by default */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            margin-top: 20px;
+            width: 100%;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .logout-btn:hover { background: var(--danger-color); color: white; }
+
+        h1 { font-size: 2rem; margin: 0; color: var(--text-color); }
+        p.subtitle { color: #a3aed0; margin-top: 5px; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+
+        .icon-container {
+            width: 70px; height: 70px;
+            background-color: #f4f7fe;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 15px; font-size: 1.8rem; color: #a3aed0;
+            transition: all 0.3s ease;
+        }
+
+        h2 { font-size: 1.1rem; margin: 0 0 5px 0; font-weight: 600; }
+        .status-text { font-size: 0.9rem; color: #a3aed0; margin-bottom: 20px; font-weight: 500; }
+
+        button.toggle-btn {
+            background-color: #f4f7fe; color: var(--text-color); border: none;
+            padding: 12px 30px; border-radius: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; width: 100%;
+        }
+        button.toggle-btn:hover { background-color: #e2e8f0; }
+
+        /* Active States */
+        .card[data-state="1"][data-type="light"] .icon-container { background-color: #fff9c4; color: #fbc02d; box-shadow: 0 0 15px #fff9c4; }
+        .card[data-state="1"][data-type="fan"] .icon-container { background-color: #e3f2fd; color: #2196f3; }
+        .card[data-state="1"][data-type="fan"] .icon-container i { animation: spin 1s linear infinite; }
+        .card[data-state="1"][data-type="curtain"] .icon-container, .card[data-state="1"][data-type="door"] .icon-container { background-color: #e8f5e9; color: var(--success-color); }
+        .card[data-state="1"][data-type="dustbin"] .icon-container { background-color: #ffebee; color: var(--danger-color); }
+        .card[data-state="1"] button.toggle-btn { background-color: var(--primary-color); color: white; box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+
+        /* Access Log Styles */
+        .card[data-type="access"] .icon-container { background-color: #f3e5f5; color: var(--info-color); }
+        .card[data-type="access"] h2 { margin-bottom: 0; }
+        .access-name { font-size: 1.2rem; font-weight: bold; color: var(--text-color); margin: 5px 0; }
+        .access-time { font-size: 0.85rem; color: #a3aed0; background: #f4f7fe; padding: 4px 10px; border-radius: 10px; margin-top: 5px; }
+        .access-date { font-size: 0.8rem; color: #a3aed0; margin-top: 2px; font-weight: 500; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #connection-status {
+            position: fixed; bottom: 20px; right: 20px;
+            background: white; padding: 8px 15px; border-radius: 20px;
+            font-size: 0.8rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 8px; z-index: 500;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+        .dot.connected { background: var(--success-color); }
+    </style>
 </head>
 <body>
-  <header>🔌 Smart IoT Dashboard - M. M. Zion
-  </header>
 
-  <div id="loginForm">
-    <input type="email" id="email" placeholder="Enter Email" />
-    <input type="password" id="password" placeholder="Enter Password" />
-    <button id="loginBtn">Login</button>
-  </div>
-
-  <div id="dashboard" style="display:none">
-    <div class="container">
-      <div class="info-panel">
-        <div>Device: <span>ESP8266</span></div>
-        <div>Status: <span id="wifiStatus">Connected</span></div>
-        <div>Last Updated: <span id="lastUpdate">--</span></div>
-        <div>User: <span id="currentUser">--</span></div>
-      </div>
-      <div class="grid">
-        <div class="card">
-          <h2>Relay 1</h2>
-          <p>Status: <span id="status1">--</span></p>
-          <button id="btn1">Toggle</button>
+    <!-- 1. LOGIN VIEW -->
+    <div id="login-view">
+        <div class="login-card">
+            <h2><i class="fas fa-school"></i> Smart Classroom</h2>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="login-btn" onclick="login()">Login</button>
+            <p class="error-msg" id="login-error">Invalid Credentials</p>
         </div>
-        <div class="card">
-          <h2>Relay 2</h2>
-          <p>Status: <span id="status2">--</span></p>
-          <button id="btn2">Toggle</button>
-        </div>
-        <div class="card">
-          <h2>Relay 3</h2>
-          <p>Status: <span id="status3">--</span></p>
-          <button id="btn3">Toggle</button>
-        </div>
-        <div class="card">
-          <h2>Relay 4</h2>
-          <p>Status: <span id="status4">--</span></p>
-          <button id="btn4">Toggle</button>
-        </div>
-      </div>
-      <div class="btn-bar">
-        <button id="allOffBtn">Turn All OFF</button>
-        <button id="logoutBtn">Logout</button>
-      </div>
     </div>
-  </div>
 
-  <footer>
-    © 2025 M. M. Zion | Firebase & ESP8266 IoT Control Panel
-  </footer>
+    <!-- 2. DASHBOARD VIEW (Hidden by default) -->
+    <div id="dashboard-view" style="display: none;">
+        <header>
+            <h1>Smart Classroom</h1>
+            <p class="subtitle">IoT Dashboard Control Panel</p>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </header>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-     apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
-  authDomain: "esp-test-ff3e3.firebaseapp.com",
-  databaseURL: "https://esp-test-ff3e3-default-rtdb.firebaseio.com",
-  projectId: "esp-test-ff3e3",
-  storageBucket: "esp-test-ff3e3.firebasestorage.app",
-  messagingSenderId: "431926409160",
-  appId: "1:431926409160:web:534274240d408acecbf2fd"
-    };
-    firebase.initializeApp(firebaseConfig);
+        <div class="grid-container">
+            <!-- 0. ACCESS LOG -->
+            <div class="card" id="card-access" data-type="access">
+                <div class="icon-container"><i class="fas fa-id-card-clip"></i></div>
+                <h2>Recent Entry</h2>
+                <div class="access-name" id="last-entry-name">Waiting...</div>
+                <div class="access-time" id="last-entry-time">--:--</div>
+                <div class="access-date" id="last-entry-date">--/--/----</div>
+            </div>
 
-    const loginForm = document.getElementById("loginForm");
-    const dashboard = document.getElementById("dashboard");
-    const loginBtn = document.getElementById("loginBtn");
-    const currentUser = document.getElementById("currentUser");
-    const lastUpdate = document.getElementById("lastUpdate");
+            <!-- 1. LIGHT -->
+            <div class="card" id="card-light" data-type="light" data-state="0">
+                <div class="icon-container"><i class="fas fa-lightbulb"></i></div>
+                <h2>Classroom Light</h2>
+                <span class="status-text">OFF</span>
+                <button class="toggle-btn" onclick="toggleDevice('light')">Turn ON</button>
+            </div>
 
-    loginBtn.addEventListener("click", () => {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if (!email || !password) return alert("Please enter credentials.");
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(user => {
-          loginForm.style.display = "none";
-          dashboard.style.display = "block";
-          currentUser.textContent = user.user.email;
-          startRelayControl();
-        })
-        .catch(err => alert("Login failed: " + err.message));
-    });
+            <!-- 2. FAN -->
+            <div class="card" id="card-fan" data-type="fan" data-state="0">
+                <div class="icon-container"><i class="fas fa-fan"></i></div>
+                <h2>Ceiling Fan</h2>
+                <span class="status-text">OFF</span>
+                <button class="toggle-btn" onclick="toggleDevice('fan')">Turn ON</button>
+            </div>
 
-    function startRelayControl() {
-      const db = firebase.database();
-      const relays = [1, 2, 3, 4];
-      relays.forEach(i => {
-        const s = document.getElementById("status" + i);
-        const b = document.getElementById("btn" + i);
-        const r = db.ref("/relay" + i);
-        r.on("value", snap => {
-          const state = snap.val();
-          s.innerText = state ? "ON" : "OFF";
-          b.style.background = state ? "var(--accent)" : "var(--primary)";
-          lastUpdate.innerText = new Date().toLocaleTimeString();
+            <!-- 3. CURTAIN -->
+            <div class="card" id="card-curtain" data-type="curtain" data-state="0">
+                <div class="icon-container"><i class="fas fa-person-booth"></i></div> 
+                <h2>Smart Curtain</h2>
+                <span class="status-text">Closed</span>
+                <button class="toggle-btn" onclick="toggleDevice('curtain')">Open Curtain</button>
+            </div>
+
+            <!-- 4. DUSTBIN -->
+            <div class="card" id="card-dustbin" data-type="dustbin" data-state="0">
+                <div class="icon-container"><i class="fas fa-trash-alt"></i></div>
+                <h2>Smart Dustbin</h2>
+                <span class="status-text">Lid Closed</span>
+                <button class="toggle-btn" onclick="toggleDevice('dustbin')">Open Lid</button>
+            </div>
+
+            <!-- 5. DOOR -->
+            <div class="card" id="card-door" data-type="door" data-state="0">
+                <div class="icon-container"><i class="fas fa-door-closed" id="door-icon"></i></div>
+                <h2>Main Entrance</h2>
+                <span class="status-text">Locked</span>
+                <button class="toggle-btn" style="pointer-events: none;">NFC Access</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="connection-status">
+        <div class="dot" id="status-dot"></div>
+        <span id="status-msg">Connecting...</span>
+    </div>
+
+    <!-- Firebase SDKs (Added Auth) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // -------------------------------------------------------------
+        // ⚠️ YOUR FIREBASE CONFIGURATION ⚠️
+        // -------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
+            authDomain: "esp-test-ff3e3.firebaseapp.com",
+            databaseURL: "https://esp-test-ff3e3-default-rtdb.firebaseio.com",
+            projectId: "esp-test-ff3e3",
+            storageBucket: "esp-test-ff3e3.firebasestorage.app",
+            messagingSenderId: "431926409160",
+            appId: "1:431926409160:web:534274240d408acecbf2fd"
+        };
+        // -------------------------------------------------------------
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error("Firebase Init Error:", error);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+
+        // --- AUTHENTICATION LOGIC ---
+
+        // Listen for Login State Changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is logged in
+                loginView.style.display = 'none';
+                dashboardView.style.display = 'flex';
+                document.getElementById('status-dot').classList.add('connected');
+                document.getElementById('status-msg').innerText = "Online: " + user.email;
+                startListening(); // Start data listeners only when logged in
+            } else {
+                // User is logged out
+                loginView.style.display = 'flex';
+                dashboardView.style.display = 'none';
+                document.getElementById('status-dot').classList.remove('connected');
+                document.getElementById('status-msg').innerText = "Please Login";
+            }
         });
-        b.onclick = () => r.get().then(snap => r.set(!snap.val()));
-      });
-      document.getElementById("allOffBtn").onclick = () => relays.forEach(i => db.ref("/relay" + i).set(false));
-    }
 
-    document.getElementById("logoutBtn").onclick = () => {
-      firebase.auth().signOut().then(() => {
-        dashboard.style.display = "none";
-        loginForm.style.display = "block";
-      });
-    }
-  </script>
+        // Login Function
+        function login() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch((error) => {
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerText = error.message;
+                });
+        }
+
+        // Logout Function
+        function logout() {
+            auth.signOut();
+        }
+
+        // --- DATA LOGIC (Runs only after login) ---
+        
+        const deviceConfig = {
+            light:   { on: "ON", off: "OFF", btnOn: "Turn OFF", btnOff: "Turn ON" },
+            fan:     { on: "Spinning", off: "Stopped", btnOn: "Stop Fan", btnOff: "Start Fan" },
+            curtain: { on: "Open", off: "Closed", btnOn: "Close Curtain", btnOff: "Open Curtain" },
+            dustbin: { on: "Lid Open", off: "Lid Closed", btnOn: "Close Lid", btnOff: "Open Lid" },
+            door:    { on: "UNLOCKED", off: "Locked", btnOn: "NFC Access", btnOff: "NFC Access" }
+        };
+
+        function startListening() {
+            const devices = ['light', 'fan', 'curtain', 'dustbin', 'door'];
+
+            // 1. Listen for Devices
+            devices.forEach(device => {
+                db.ref(device).on('value', (snapshot) => {
+                    const val = snapshot.val(); 
+                    updateCard(device, val);
+                });
+            });
+
+            // 2. Listen for Access Log
+            db.ref('lastEntry').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    document.getElementById('last-entry-name').innerText = data.name || "Unknown ID";
+                    document.getElementById('last-entry-time').innerText = data.time || "--:--";
+                    document.getElementById('last-entry-date').innerText = data.date || "--/--/----";
+                }
+            });
+        }
+
+        function updateCard(device, val) {
+            const card = document.getElementById(`card-${device}`);
+            const statusSpan = card.querySelector('.status-text');
+            const btn = card.querySelector('button');
+            const icon = card.querySelector('.icon-container i');
+
+            card.setAttribute('data-state', val);
+
+            if (val === 1) {
+                statusSpan.innerText = deviceConfig[device].on;
+                btn.innerText = deviceConfig[device].btnOn;
+                if(device === 'door') {
+                    icon.classList.remove('fa-door-closed');
+                    icon.classList.add('fa-door-open');
+                }
+            } else {
+                statusSpan.innerText = deviceConfig[device].off;
+                btn.innerText = deviceConfig[device].btnOff;
+                if(device === 'door') {
+                    icon.classList.remove('fa-door-open');
+                    icon.classList.add('fa-door-closed');
+                }
+            }
+        }
+
+        function toggleDevice(device) {
+            if (device === 'door') return; 
+
+            const ref = db.ref(device);
+            ref.once('value').then((snapshot) => {
+                const currentVal = snapshot.val();
+                const nextVal = (currentVal === 1) ? 0 : 1;
+                ref.set(nextVal);
+            });
+        }
+
+    </script>
 </body>
 </html>
