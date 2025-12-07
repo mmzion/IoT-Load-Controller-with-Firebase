@@ -15,21 +15,21 @@
             --primary-color: #4f46e5;
             --primary-dark: #4338ca;
             --secondary-color: #64748b;
-            --bg-color: #f1f5f9;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-light: #64748b;
             --success-color: #10b981;
             --danger-color: #ef4444;
             --warning-color: #f59e0b;
-            --glass-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --glass-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(#e0e7ff 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 30px 30px;
             color: var(--text-main);
             margin: 0;
             padding: 0;
@@ -54,14 +54,26 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             padding: 50px 40px;
             border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             width: 90%;
             max-width: 400px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
+        }
+
+        /* Shake animation for wrong password */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
         .login-card i.logo-icon {
@@ -69,13 +81,14 @@
             color: var(--primary-color);
             margin-bottom: 15px;
             background: #e0e7ff;
-            padding: 15px;
+            padding: 18px;
             border-radius: 50%;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
         }
 
         .login-card h2 {
             color: var(--text-main);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: 700;
         }
 
@@ -94,8 +107,10 @@
             display: block;
             margin-bottom: 8px;
             color: var(--text-main);
-            font-weight: 500;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .input-group input {
@@ -107,12 +122,14 @@
             font-size: 1rem;
             transition: all 0.3s;
             font-family: inherit;
+            background: #f8fafc;
         }
 
         .input-group input:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
         .login-btn {
@@ -127,23 +144,29 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 10px;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
         }
 
         .login-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
         }
 
         .error-msg {
-            color: var(--danger-color);
+            color: #b91c1c;
             font-size: 0.85rem;
-            margin-top: 15px;
-            display: none;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
             background: #fef2f2;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+            text-align: left;
+            display: flex; /* Changed from none to flex via JS */
+            align-items: center;
+            gap: 10px;
+            display: none;
         }
 
         /* --- DASHBOARD STYLES --- */
@@ -155,6 +178,12 @@
             align-items: center;
             padding: 20px;
             box-sizing: border-box;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Header Section */
@@ -164,10 +193,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 25px;
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: var(--glass-shadow);
+            border: 1px solid rgba(255,255,255,0.6);
         }
 
         .header-left h1 {
@@ -175,12 +205,16 @@
             margin: 0;
             color: var(--text-main);
             font-weight: 700;
+            background: linear-gradient(90deg, #4f46e5, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header-left p {
             color: var(--text-light);
             margin: 5px 0 0;
             font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .header-right {
@@ -191,20 +225,20 @@
 
         .clock-widget {
             text-align: right;
-            display: none; /* Hidden on very small mobile */
+            display: none;
         }
         
         @media (min-width: 600px) {
             .clock-widget { display: block; }
         }
 
-        .clock-time { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
-        .clock-date { font-size: 0.8rem; color: var(--text-light); }
+        .clock-time { font-size: 1.4rem; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
+        .clock-date { font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
         .logout-btn {
-            background: #fef2f2;
+            background: white;
             color: var(--danger-color);
-            border: none;
+            border: 2px solid #fee2e2;
             padding: 10px 20px;
             border-radius: 12px;
             cursor: pointer;
@@ -216,12 +250,12 @@
             gap: 8px;
         }
 
-        .logout-btn:hover { background: #fee2e2; }
+        .logout-btn:hover { background: #fef2f2; border-color: var(--danger-color); }
 
         /* Stats Summary Row */
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             width: 100%;
             margin-bottom: 30px;
@@ -229,28 +263,31 @@
 
         .stat-card {
             background: white;
-            padding: 15px 20px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 20px;
             box-shadow: var(--glass-shadow);
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: transform 0.2s;
         }
+        
+        .stat-card:hover { transform: translateY(-3px); }
 
         .stat-icon {
-            width: 45px; height: 45px;
-            border-radius: 12px;
+            width: 50px; height: 50px;
+            border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
         }
 
-        .stat-info h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
-        .stat-info p { margin: 0; font-size: 0.8rem; color: var(--text-light); }
+        .stat-info h3 { margin: 0; font-size: 1.4rem; color: var(--text-main); font-weight: 700; }
+        .stat-info p { margin: 0; font-size: 0.85rem; color: var(--text-light); font-weight: 500; }
 
         /* Main Grid */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             width: 100%;
         }
@@ -267,28 +304,30 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.8);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
         }
 
         .icon-container {
-            width: 80px; height: 80px;
+            width: 90px; height: 90px;
             background-color: #f1f5f9;
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex; align-items: center; justify-content: center;
             margin-bottom: 20px;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #94a3b8;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        .card:hover .icon-container { transform: scale(1.05); }
+
         .card h2 {
-            font-size: 1.1rem;
-            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            margin: 0 0 8px 0;
             font-weight: 600;
             color: var(--text-main);
         }
@@ -297,32 +336,34 @@
             font-size: 0.9rem;
             color: var(--text-light);
             margin-bottom: 25px;
-            font-weight: 500;
-            background: #f8fafc;
-            padding: 5px 15px;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 6px 16px;
             border-radius: 20px;
+            letter-spacing: 0.3px;
         }
 
         button.toggle-btn {
             background-color: #f1f5f9;
             color: var(--text-main);
             border: none;
-            padding: 14px 0;
-            border-radius: 14px;
+            padding: 16px 0;
+            border-radius: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
             font-family: inherit;
+            font-size: 1rem;
         }
 
         button.toggle-btn:hover { background-color: #e2e8f0; }
 
         /* --- ACTIVE STATES --- */
         
-        .card[data-state="1"][data-type="light"] .icon-container { background-color: #fef9c3; color: #eab308; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
-        .card[data-state="1"][data-type="fan"] .icon-container { background-color: #e0f2fe; color: #0ea5e9; }
-        .card[data-state="1"][data-type="fan"] .icon-container i { animation: spin 1.5s linear infinite; }
+        .card[data-state="1"][data-type="light"] .icon-container { background-color: #fef9c3; color: #ca8a04; box-shadow: 0 0 30px rgba(234, 179, 8, 0.3); }
+        .card[data-state="1"][data-type="fan"] .icon-container { background-color: #e0f2fe; color: #0284c7; }
+        .card[data-state="1"][data-type="fan"] .icon-container i { animation: spin 1s linear infinite; }
         
         .card[data-state="1"][data-type="curtain"] .icon-container, 
         .card[data-state="1"][data-type="door"] .icon-container { background-color: #dcfce7; color: var(--success-color); }
@@ -332,55 +373,64 @@
         .card[data-state="1"] button.toggle-btn {
             background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
             color: white;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+        }
+        
+        .card[data-state="1"] button.toggle-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
         }
 
         /* Access Log Styles - Premium Look */
         .card[data-type="access"] {
-            grid-column: 1 / -1; /* Full width on mobile */
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            grid-column: 1 / -1; 
+            background: linear-gradient(120deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 40px;
+            padding: 30px 40px;
+            border: none;
         }
         
-        @media (max-width: 600px) {
-            .card[data-type="access"] { flex-direction: column; text-align: center; gap: 15px; }
+        @media (max-width: 700px) {
+            .card[data-type="access"] { flex-direction: column; text-align: center; gap: 20px; }
         }
 
         .card[data-type="access"] .icon-container {
             background: rgba(255,255,255,0.2);
             color: white;
-            width: 60px; height: 60px;
-            font-size: 1.5rem;
+            width: 70px; height: 70px;
+            font-size: 1.8rem;
             margin-bottom: 0;
+            backdrop-filter: blur(5px);
         }
 
-        .access-info { text-align: left; flex-grow: 1; margin-left: 20px; }
-        @media (max-width: 600px) { .access-info { text-align: center; margin-left: 0; } }
+        .access-info { text-align: left; flex-grow: 1; margin-left: 25px; }
+        @media (max-width: 700px) { .access-info { text-align: center; margin-left: 0; } }
 
-        .card[data-type="access"] h2 { color: rgba(255,255,255,0.9); margin-bottom: 5px; }
-        .access-name { font-size: 1.5rem; font-weight: 700; color: white; }
+        .card[data-type="access"] h2 { color: rgba(255,255,255,0.9); margin-bottom: 5px; font-weight: 500; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .access-name { font-size: 2rem; font-weight: 700; color: white; line-height: 1.2; }
         
         .access-meta {
             text-align: right;
-            background: rgba(0,0,0,0.1);
-            padding: 10px 20px;
-            border-radius: 12px;
+            background: rgba(0,0,0,0.15);
+            padding: 12px 25px;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        @media (max-width: 600px) { .access-meta { width: 100%; text-align: center; box-sizing: border-box; } }
+        @media (max-width: 700px) { .access-meta { width: 100%; text-align: center; box-sizing: border-box; } }
 
-        .access-time { font-size: 1.2rem; font-weight: 600; display: block; }
-        .access-date { font-size: 0.8rem; opacity: 0.8; }
+        .access-time { font-size: 1.4rem; font-weight: 700; display: block; }
+        .access-date { font-size: 0.9rem; opacity: 0.9; font-weight: 500; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* Footer Credits */
         footer {
-            margin-top: 50px;
-            margin-bottom: 20px;
+            margin-top: 60px;
+            margin-bottom: 30px;
             text-align: center;
             color: var(--text-light);
             font-size: 0.9rem;
@@ -395,17 +445,54 @@
             color: var(--primary-color);
         }
 
-        /* Floating Status */
+        /* Floating Status & Toast */
         #connection-status {
             position: fixed; bottom: 20px; right: 20px;
             background: white; padding: 10px 20px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 500;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            font-size: 0.85rem; font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             display: flex; align-items: center; gap: 10px; z-index: 500;
             border: 1px solid #f1f5f9;
         }
+        
         .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; transition: background 0.3s; }
-        .dot.connected { background: var(--success-color); box-shadow: 0 0 10px var(--success-color); }
+        .dot.connected { background: var(--success-color); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+        }
+
+        .toast {
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease-out forwards;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
     </style>
 </head>
@@ -430,7 +517,10 @@
             <button class="login-btn" onclick="login()">
                 Sign In <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
             </button>
-            <p class="error-msg" id="login-error"><i class="fas fa-exclamation-circle"></i> Invalid Credentials</p>
+            <div class="error-msg" id="login-error">
+                <i class="fas fa-exclamation-circle" style="font-size: 1.2rem;"></i>
+                <span id="error-text">Invalid Credentials</span>
+            </div>
         </div>
     </div>
 
@@ -443,8 +533,8 @@
             </div>
             <div class="header-right">
                 <div class="clock-widget">
-                    <div class="clock-time" id="clock-time">12:00 PM</div>
-                    <div class="clock-date" id="clock-date">Monday, 01 Jan</div>
+                    <div class="clock-time" id="clock-time">--:--</div>
+                    <div class="clock-date" id="clock-date">Loading...</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -480,7 +570,7 @@
                 <div class="icon-container"><i class="fas fa-id-badge"></i></div>
                 <div class="access-info">
                     <h2>Recent Entry</h2>
-                    <div class="access-name" id="last-entry-name">--</div>
+                    <div class="access-name" id="last-entry-name">Waiting...</div>
                 </div>
                 <div class="access-meta">
                     <span class="access-time" id="last-entry-time">--:--</span>
@@ -504,12 +594,12 @@
                 <button class="toggle-btn" onclick="toggleDevice('fan')">Start Fan</button>
             </div>
 
-            <!-- 3. CURTAIN -->
+            <!-- 3. CURTAIN (UPDATED ICON & TEXT) -->
             <div class="card" id="card-curtain" data-type="curtain" data-state="0">
-                <div class="icon-container"><i class="fas fa-warehouse"></i></div> 
-                <h2>Smart Blinds</h2>
+                <div class="icon-container"><i class="fas fa-person-booth"></i></div> 
+                <h2>Smart Curtain</h2>
                 <span class="status-text">Closed</span>
-                <button class="toggle-btn" onclick="toggleDevice('curtain')">Open Blinds</button>
+                <button class="toggle-btn" onclick="toggleDevice('curtain')">Open Curtain</button>
             </div>
 
             <!-- 4. DUSTBIN -->
@@ -536,9 +626,12 @@
         </footer>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
     <div id="connection-status">
         <div class="dot" id="status-dot"></div>
-        <span id="status-msg">Connecting to Classroom...</span>
+        <span id="status-msg">Connecting...</span>
     </div>
 
     <!-- Firebase SDKs -->
@@ -582,9 +675,10 @@
                 dashboardView.style.display = 'flex';
                 document.getElementById('status-dot').classList.add('connected');
                 document.getElementById('status-msg').innerText = "System Online";
-                document.getElementById('user-email-display').innerText = "Operator: " + user.email.split('@')[0]; // Show name part of email
+                document.getElementById('user-email-display').innerText = "Operator: " + user.email.split('@')[0];
                 startListening();
                 startTime();
+                showToast(`👋 Welcome back, ${user.email.split('@')[0]}`);
             } else {
                 // User is logged out
                 loginView.style.display = 'flex';
@@ -598,7 +692,13 @@
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
+            const errorText = document.getElementById('error-text');
             const btn = document.querySelector('.login-btn');
+            const card = document.querySelector('.login-card');
+
+            // Reset error state
+            errorMsg.style.display = 'none';
+            card.classList.remove('shake');
 
             // Simple loading state
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
@@ -607,17 +707,37 @@
                 .then(() => {
                     // Reset button
                     btn.innerHTML = 'Sign In <i class="fas fa-arrow-right"></i>';
-                    errorMsg.style.display = 'none';
                 })
                 .catch((error) => {
                     btn.innerHTML = 'Sign In <i class="fas fa-arrow-right"></i>';
-                    errorMsg.style.display = 'block';
-                    errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+                    
+                    // Show error with shake animation
+                    errorMsg.style.display = 'flex';
+                    errorText.innerText = "Incorrect Email or Password"; // Simplified message
+                    
+                    // Trigger shake
+                    card.classList.add('shake');
+                    setTimeout(() => card.classList.remove('shake'), 500);
                 });
         }
 
         function logout() {
             auth.signOut();
+        }
+
+        // --- TOAST NOTIFICATIONS (NEW) ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            container.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         // --- UTILITY: REAL-TIME CLOCK ---
@@ -627,19 +747,22 @@
             let m = today.getMinutes();
             const ampm = h >= 12 ? 'PM' : 'AM';
             h = h % 12;
-            h = h ? h : 12; // the hour '0' should be '12'
+            h = h ? h : 12;
             m = checkTime(m);
             
             const options = { weekday: 'long', month: 'short', day: 'numeric' };
             const dateStr = today.toLocaleDateString('en-US', options);
 
-            document.getElementById('clock-time').innerHTML = h + ":" + m + " " + ampm;
-            document.getElementById('clock-date').innerHTML = dateStr;
+            const timeEl = document.getElementById('clock-time');
+            if(timeEl) {
+                timeEl.innerHTML = h + ":" + m + " " + ampm;
+                document.getElementById('clock-date').innerHTML = dateStr;
+            }
             setTimeout(startTime, 1000);
         }
 
         function checkTime(i) {
-            if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+            if (i < 10) {i = "0" + i};
             return i;
         }
 
@@ -648,7 +771,7 @@
         const deviceConfig = {
             light:   { on: "Switched ON", off: "Switched OFF", btnOn: "Turn OFF", btnOff: "Turn ON" },
             fan:     { on: "Spinning (Active)", off: "Stopped", btnOn: "Stop Fan", btnOff: "Start Fan" },
-            curtain: { on: "Open", off: "Closed", btnOn: "Close Blinds", btnOff: "Open Blinds" },
+            curtain: { on: "Open", off: "Closed", btnOn: "Close Curtain", btnOff: "Open Curtain" },
             dustbin: { on: "Lid Open", off: "Lid Closed", btnOn: "Close Lid", btnOff: "Open Lid" },
             door:    { on: "UNLOCKED", off: "Securely Locked", btnOn: "NFC Access", btnOff: "NFC Access" }
         };
@@ -688,7 +811,6 @@
                 statusSpan.innerText = deviceConfig[device].on;
                 btn.innerText = deviceConfig[device].btnOn;
                 
-                // Door Icon Logic
                 if(device === 'door') {
                     icon.classList.remove('fa-door-closed');
                     icon.classList.add('fa-door-open');
@@ -704,14 +826,14 @@
             }
         }
 
-        // Count how many devices are ON (excluding door)
         function updateActiveCount() {
             const cards = document.querySelectorAll('.card[data-state="1"]');
             let count = 0;
             cards.forEach(c => {
                 if(c.getAttribute('data-type') !== 'door') count++;
             });
-            document.getElementById('active-count').innerText = count;
+            const activeEl = document.getElementById('active-count');
+            if(activeEl) activeEl.innerText = count;
         }
 
         function toggleDevice(device) {
@@ -722,6 +844,11 @@
                 const currentVal = snapshot.val();
                 const nextVal = (currentVal === 1) ? 0 : 1;
                 ref.set(nextVal);
+                
+                // Show professional toast
+                const action = nextVal === 1 ? "Turning ON" : "Turning OFF";
+                const devName = device.charAt(0).toUpperCase() + device.slice(1);
+                showToast(`📡 ${action} ${devName}...`);
             });
         }
 
