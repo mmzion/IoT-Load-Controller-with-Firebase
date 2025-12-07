@@ -255,7 +255,7 @@
         /* Stats Summary Row */
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             width: 100%;
             margin-bottom: 30px;
@@ -445,7 +445,7 @@
             color: var(--primary-color);
         }
 
-        /* Floating Status & Toast */
+        /* Floating Status */
         #connection-status {
             position: fixed; bottom: 20px; right: 20px;
             background: white; padding: 10px 20px; border-radius: 30px;
@@ -462,36 +462,6 @@
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Toast Notifications */
-        #toast-container {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-        }
-
-        .toast {
-            background: rgba(30, 41, 59, 0.9);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideUp 0.3s ease-out forwards;
-            backdrop-filter: blur(5px);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
     </style>
@@ -562,6 +532,16 @@
                     <p>Active Devices</p>
                 </div>
             </div>
+            <!-- Weather Card -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff7ed; color: #ea580c;">
+                    <i class="fas fa-temperature-high"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="temp-display">--°C</h3>
+                    <p id="loc-display">Detecting...</p>
+                </div>
+            </div>
         </div>
 
         <div class="grid-container">
@@ -622,12 +602,9 @@
         <!-- Footer Credits -->
         <footer>
             <div class="credits">Developed & Designed by <span>Zion, Rony, Imtiaz</span></div>
-            <div style="margin-top: 5px; font-size: 0.8rem;">&copy; 2024 Smart Classroom Project</div>
+            <div style="margin-top: 5px; font-size: 0.8rem;">&copy; 2025 Smart Classroom Project</div>
         </footer>
     </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
 
     <div id="connection-status">
         <div class="dot" id="status-dot"></div>
@@ -678,7 +655,7 @@
                 document.getElementById('user-email-display').innerText = "Operator: " + user.email.split('@')[0];
                 startListening();
                 startTime();
-                showToast(`👋 Welcome back, ${user.email.split('@')[0]}`);
+                initWeather(); // Start Weather Service
             } else {
                 // User is logged out
                 loginView.style.display = 'flex';
@@ -725,20 +702,43 @@
             auth.signOut();
         }
 
-        // --- TOAST NOTIFICATIONS (NEW) ---
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
-            container.appendChild(toast);
+        // --- UTILITY: WEATHER ---
+        function initWeather() {
+            const tempEl = document.getElementById('temp-display');
+            const locEl = document.getElementById('loc-display');
 
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        fetchWeather(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        console.error("Geo Error:", error);
+                        tempEl.innerText = "--";
+                        locEl.innerText = "Loc Denied";
+                    }
+                );
+            } else {
+                locEl.innerText = "No Geo";
+            }
         }
+
+        function fetchWeather(lat, lon) {
+            // Using Open-Meteo (Free, No Key)
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.current) {
+                        const temp = Math.round(data.current.temperature_2m);
+                        document.getElementById('temp-display').innerText = `${temp}°C`;
+                        document.getElementById('loc-display').innerText = "Local Temp";
+                    }
+                })
+                .catch(err => console.error("Weather API Error:", err));
+        }
+
 
         // --- UTILITY: REAL-TIME CLOCK ---
         function startTime() {
@@ -844,11 +844,6 @@
                 const currentVal = snapshot.val();
                 const nextVal = (currentVal === 1) ? 0 : 1;
                 ref.set(nextVal);
-                
-                // Show professional toast
-                const action = nextVal === 1 ? "Turning ON" : "Turning OFF";
-                const devName = device.charAt(0).toUpperCase() + device.slice(1);
-                showToast(`📡 ${action} ${devName}...`);
             });
         }
 
