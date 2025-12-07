@@ -704,23 +704,11 @@
 
         // --- UTILITY: WEATHER ---
         function initWeather() {
-            const tempEl = document.getElementById('temp-display');
-            const locEl = document.getElementById('loc-display');
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        fetchWeather(position.coords.latitude, position.coords.longitude);
-                    },
-                    (error) => {
-                        console.error("Geo Error:", error);
-                        tempEl.innerText = "--";
-                        locEl.innerText = "Loc Denied";
-                    }
-                );
-            } else {
-                locEl.innerText = "No Geo";
-            }
+            // Hardcoded coordinates for Daffodil International University (Ashulia Campus)
+            const lat = 23.8811;
+            const lon = 90.2686;
+            
+            fetchWeather(lat, lon);
         }
 
         function fetchWeather(lat, lon) {
@@ -733,12 +721,11 @@
                     if(data.current) {
                         const temp = Math.round(data.current.temperature_2m);
                         document.getElementById('temp-display').innerText = `${temp}°C`;
-                        document.getElementById('loc-display').innerText = "Local Temp";
+                        document.getElementById('loc-display').innerText = "DIU Campus";
                     }
                 })
                 .catch(err => console.error("Weather API Error:", err));
         }
-
 
         // --- UTILITY: REAL-TIME CLOCK ---
         function startTime() {
