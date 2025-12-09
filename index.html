@@ -59,7 +59,10 @@
         // --- COMPONENTS ---
 
         const ToggleSwitch = ({ label, icon, value, onChange, colorClass }) => (
-            <div className="glass-panel p-6 rounded-2xl flex items-center justify-between transition-all hover:border-slate-500">
+            <div 
+                onClick={() => onChange(!value)} 
+                className="glass-panel p-6 rounded-2xl flex items-center justify-between transition-all hover:border-slate-500 cursor-pointer"
+            >
                 <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-full ${value ? colorClass : 'bg-slate-700 text-slate-400'} transition-colors duration-300`}>
                         <i className={`ph ${icon} text-2xl`}></i>
@@ -69,12 +72,11 @@
                         <p className="text-xs text-slate-400">{value ? 'Active' : 'Inactive'}</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => onChange(!value)}
-                    className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${value ? 'bg-green-500' : 'bg-slate-700'}`}
+                <div 
+                    className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${value ? 'bg-green-500' : 'bg-slate-700'}`}
                 >
                     <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${value ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                </button>
+                </div>
             </div>
         );
 
@@ -174,10 +176,10 @@
                 const controlsRef = ref(db, 'controls');
                 const unsubControls = onValue(controlsRef, (snapshot) => {
                     const data = snapshot.val();
-                    // Robustly handle data to prevent "other is not changing" issues if keys are missing
+                    // Robust check: undefined/null check to prevent issues with 0 values
                     setControls({
-                        fan: (data && data.fan) ? Number(data.fan) : 0,
-                        light: (data && data.light) ? Number(data.light) : 0
+                        fan: (data && data.fan !== undefined) ? Number(data.fan) : 0,
+                        light: (data && data.light !== undefined) ? Number(data.light) : 0
                     });
                 });
 
@@ -211,24 +213,29 @@
                 };
             }, []);
 
-            // FIX: Use set() on specific path instead of update(), and handle type conversion (== instead of ===)
             const toggleControl = (key, currentVal) => {
-                // Ensure currentVal is treated as a number for the logic
+                // Ensure currentVal is treated as a number
                 const numericVal = Number(currentVal);
                 const isConfiguredOn = numericVal === 1; 
                 const nextValue = isConfiguredOn ? 0 : 1;
                 
-                console.log(`Toggling ${key} from ${numericVal} to ${nextValue}`);
+                console.log(`Attempting to toggle ${key} to ${nextValue}`);
 
                 // Writing directly to /controls/fan or /controls/light
                 set(ref(db, `controls/${key}`), nextValue)
-                    .catch((error) => console.error("Error updating " + key, error));
+                    .then(() => console.log("Update successful"))
+                    .catch((error) => {
+                        console.error("Error updating " + key, error);
+                        // ALERT USER ON ERROR
+                        alert("Database Error: " + error.message + "\n\nCheck your Firebase Rules!");
+                    });
             };
 
             const updateTemperature = (e) => {
                 const val = parseFloat(e.target.value);
                 setTemperature(val);
-                set(ref(db, 'temperature'), val); // Update Firebase immediately
+                set(ref(db, 'temperature'), val)
+                    .catch((error) => alert("Temp Error: " + error.message));
             };
 
             return (
