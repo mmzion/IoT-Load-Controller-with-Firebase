@@ -1,104 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ESP32 Control Panel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 Control</title>
 
-<!-- ====== STYLE ====== -->
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-.container {
-    width: 90%;
-    max-width: 400px;
-    padding: 25px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-}
-button:hover {
-    background: #0056b3;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-#dashboard {
-    display: none;
-}
+    .box {
+        width: 92%;
+        max-width: 380px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
 
-.control-btn {
-    margin-top: 10px;
-    background: #28a745;
-}
-.control-btn.off {
-    background: #dc3545;
-}
+    h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+    }
+
+    .btn-primary { background: #007bff; }
+    .btn-primary:hover { background: #0064d3; }
+
+    .btn-green { background: #28a745; }
+    .btn-red { background: #dc3545; }
+    .btn-dark { background: #444; }
+
+    #dashboard { display: none; }
 </style>
 </head>
 
 <body>
-<div class="container">
+
+<div class="box">
+
+    <!-- LOGIN -->
     <div id="loginPage">
         <h2>Login</h2>
-        <input type="email" id="email" placeholder="Enter Email" />
-        <input type="password" id="password" placeholder="Enter Password" />
-        <button onclick="login()">Login</button>
-        <p id="errorMsg" style="color:red; margin-top:10px;"></p>
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button class="btn-primary" onclick="login()">Login</button>
+        <p id="errorMsg" style="color:red; font-size:14px;"></p>
     </div>
 
+    <!-- DASHBOARD -->
     <div id="dashboard">
-        <h2>ESP32 Control Panel</h2>
+        <h2>Control Panel</h2>
 
-        <button class="control-btn" onclick="setLight(1)">Light ON</button>
-        <button class="control-btn off" onclick="setLight(0)">Light OFF</button>
+        <button class="btn-green" onclick="setLight(1)">Light ON</button>
+        <button class="btn-red" onclick="setLight(0)">Light OFF</button>
 
-        <button class="control-btn" onclick="setFan(1)">Fan ON</button>
-        <button class="control-btn off" onclick="setFan(0)">Fan OFF</button>
+        <button class="btn-green" onclick="setFan(1)">Fan ON</button>
+        <button class="btn-red" onclick="setFan(0)">Fan OFF</button>
 
-        <button class="control-btn" onclick="openDoor()">Open Door</button>
+        <button class="btn-primary" onclick="openDoor()">Open Door</button>
 
-        <button style="background:#444;" onclick="logout()">Logout</button>
+        <button class="btn-dark" onclick="logout()">Logout</button>
     </div>
+
 </div>
 
-<!-- ===== FIREBASE v9 SDK ===== -->
+<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } 
+import { getAuth, signInWithEmailAndPassword, signOut }
     from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getDatabase, ref, set }
     from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-/* ======== CONFIG ========= */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 Control</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .box {
+        width: 92%;
+        max-width: 380px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        color: white;
+    }
+
+    .btn-primary { background: #007bff; }
+    .btn-primary:hover { background: #0064d3; }
+
+    .btn-green { background: #28a745; }
+    .btn-red { background: #dc3545; }
+    .btn-dark { background: #444; }
+
+    #dashboard { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <!-- LOGIN -->
+    <div id="loginPage">
+        <h2>Login</h2>
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button class="btn-primary" onclick="login()">Login</button>
+        <p id="errorMsg" style="color:red; font-size:14px;"></p>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+        <h2>Control Panel</h2>
+
+        <button class="btn-green" onclick="setLight(1)">Light ON</button>
+        <button class="btn-red" onclick="setLight(0)">Light OFF</button>
+
+        <button class="btn-green" onclick="setFan(1)">Fan ON</button>
+        <button class="btn-red" onclick="setFan(0)">Fan OFF</button>
+
+        <button class="btn-primary" onclick="openDoor()">Open Door</button>
+
+        <button class="btn-dark" onclick="logout()">Logout</button>
+    </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getDatabase, ref, set }
+    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
     authDomain: "esp-test-ff3e3.firebaseapp.com",
@@ -109,45 +212,74 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-/* ===== LOGIN FUNCTION ===== */
+// LOGIN
 window.login = function () {
     const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const pass = document.getElementById("password").value;
 
-    signInWithEmailAndPassword(auth, email, password)
+    signInWithEmailAndPassword(auth, email, pass)
     .then(() => {
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
     })
-    .catch((error) => {
-        document.getElementById("errorMsg").innerText = error.message;
+    .catch((e) => {
+        document.getElementById("errorMsg").innerText = "Login Failed!";
     });
 };
 
-/* ===== LOGOUT FUNCTION ===== */
+// LOGOUT
 window.logout = function () {
     signOut(auth);
     document.getElementById("dashboard").style.display = "none";
     document.getElementById("loginPage").style.display = "block";
 };
 
-/* ===== CONTROLS ===== */
-window.setLight = function (state) {
-    set(ref(db, "/controls/light"), state);
+// CONTROLS
+window.setLight = (state) => set(ref(db, "/controls/light"), state);
+window.setFan = (state) => set(ref(db, "/controls/fan"), state);
+window.openDoor = () => set(ref(db, "/controls/door"), { action: "open", ts: Date.now() });
+
+</script>
+
+</body>
+</html>
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// LOGIN
+window.login = function () {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+    })
+    .catch((e) => {
+        document.getElementById("errorMsg").innerText = "Login Failed!";
+    });
 };
 
-window.setFan = function (state) {
-    set(ref(db, "/controls/fan"), state);
+// LOGOUT
+window.logout = function () {
+    signOut(auth);
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
 };
 
-window.openDoor = function () {
-    set(ref(db, "/controls/door"), { action: "open", ts: Date.now() });
-};
+// CONTROLS
+window.setLight = (state) => set(ref(db, "/controls/light"), state);
+window.setFan = (state) => set(ref(db, "/controls/fan"), state);
+window.openDoor = () => set(ref(db, "/controls/door"), { action: "open", ts: Date.now() });
+
 </script>
 
 </body>
