@@ -1,286 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP32 Control</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Access Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f0f2f5;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-
-    .box {
-        width: 92%;
-        max-width: 380px;
-        background: #fff;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    h2 {
-        margin-bottom: 20px;
-        color: #333;
-    }
-
-    input {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 15px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        color: white;
-    }
-
-    .btn-primary { background: #007bff; }
-    .btn-primary:hover { background: #0064d3; }
-
-    .btn-green { background: #28a745; }
-    .btn-red { background: #dc3545; }
-    .btn-dark { background: #444; }
-
-    #dashboard { display: none; }
-</style>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
 </head>
-
 <body>
+    <div id="root"></div>
 
-<div class="box">
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    <!-- LOGIN -->
-    <div id="loginPage">
-        <h2>Login</h2>
-        <input id="email" type="email" placeholder="Email">
-        <input id="password" type="password" placeholder="Password">
-        <button class="btn-primary" onclick="login()">Login</button>
-        <p id="errorMsg" style="color:red; font-size:14px;"></p>
-    </div>
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
+            authDomain: "esp-test-ff3e3.firebaseapp.com",
+            databaseURL: "https://esp-test-ff3e3-default-rtdb.firebaseio.com",
+            projectId: "esp-test-ff3e3",
+            storageBucket: "esp-test-ff3e3.firebasestorage.app",
+            messagingSenderId: "431926409160",
+            appId: "1:431926409160:web:534274240d408acecbf2fd"
+        };
 
-    <!-- DASHBOARD -->
-    <div id="dashboard">
-        <h2>Control Panel</h2>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
 
-        <button class="btn-green" onclick="setLight(1)">Light ON</button>
-        <button class="btn-red" onclick="setLight(0)">Light OFF</button>
+        // --- COMPONENTS ---
 
-        <button class="btn-green" onclick="setFan(1)">Fan ON</button>
-        <button class="btn-red" onclick="setFan(0)">Fan OFF</button>
+        const ToggleSwitch = ({ label, icon, value, onChange, colorClass }) => (
+            <div className="glass-panel p-6 rounded-2xl flex items-center justify-between transition-all hover:border-slate-500">
+                <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-full ${value ? colorClass : 'bg-slate-700 text-slate-400'} transition-colors duration-300`}>
+                        <i className={`ph ${icon} text-2xl`}></i>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-lg">{label}</h3>
+                        <p className="text-xs text-slate-400">{value ? 'Active' : 'Inactive'}</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => onChange(!value)}
+                    className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${value ? 'bg-green-500' : 'bg-slate-700'}`}
+                >
+                    <div className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${value ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                </button>
+            </div>
+        );
 
-        <button class="btn-primary" onclick="openDoor()">Open Door</button>
+        const Login = ({ onLogin }) => {
+            const [isRegistering, setIsRegistering] = React.useState(false);
+            const [email, setEmail] = React.useState("");
+            const [password, setPassword] = React.useState("");
+            const [error, setError] = React.useState("");
+            const [loading, setLoading] = React.useState(false);
 
-        <button class="btn-dark" onclick="logout()">Logout</button>
-    </div>
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError("");
+                setLoading(true);
+                try {
+                    if (isRegistering) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    }
+                } catch (err) {
+                    setError(err.message.replace('Firebase: ', ''));
+                }
+                setLoading(false);
+            };
 
-</div>
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 relative overflow-hidden">
+                    {/* Background decorations */}
+                    <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[100px]"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-600/20 rounded-full blur-[100px]"></div>
 
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut }
-    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getDatabase, ref, set }
-    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+                    <div className="glass-panel p-8 rounded-2xl w-full max-w-md shadow-2xl relative z-10">
+                        <div className="text-center mb-8">
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 text-blue-400 mb-4">
+                                <i className="ph ph-shield-check text-3xl"></i>
+                            </div>
+                            <h2 className="text-2xl font-bold text-white">Smart Access</h2>
+                            <p className="text-slate-400">IoT Control Center</p>
+                        </div>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP32 Control</title>
+                        {error && <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-6 text-sm text-center">{error}</div>}
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f0f2f5;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                                <input 
+                                    type="email" 
+                                    required
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                    placeholder="admin@iot.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Password</label>
+                                <input 
+                                    type="password" 
+                                    required
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Processing...' : (isRegistering ? 'Create Account' : 'Sign In')}
+                            </button>
+                        </form>
 
-    .box {
-        width: 92%;
-        max-width: 380px;
-        background: #fff;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+                        <div className="mt-6 text-center">
+                            <button 
+                                onClick={() => setIsRegistering(!isRegistering)}
+                                className="text-sm text-slate-400 hover:text-white transition-colors"
+                            >
+                                {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-    h2 {
-        margin-bottom: 20px;
-        color: #333;
-    }
+        const Dashboard = ({ user }) => {
+            const [controls, setControls] = React.useState({ fan: 0, light: 0 });
+            const [temperature, setTemperature] = React.useState(24.0);
+            const [attendance, setAttendance] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
 
-    input {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 15px;
-    }
+            React.useEffect(() => {
+                // Listen to Controls
+                const controlsRef = ref(db, 'controls');
+                const unsubControls = onValue(controlsRef, (snapshot) => {
+                    const data = snapshot.val() || { fan: 0, light: 0 };
+                    setControls(data);
+                });
 
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        color: white;
-    }
+                // Listen to Temperature
+                const tempRef = ref(db, 'temperature');
+                const unsubTemp = onValue(tempRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data !== null) setTemperature(data);
+                });
 
-    .btn-primary { background: #007bff; }
-    .btn-primary:hover { background: #0064d3; }
+                // Listen to Attendance
+                const attendanceRef = ref(db, 'attendance');
+                const unsubAttendance = onValue(attendanceRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const formatted = Object.entries(data).map(([timestamp, name]) => ({
+                            timestamp,
+                            name
+                        })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort Newest First
+                        setAttendance(formatted);
+                    } else {
+                        setAttendance([]);
+                    }
+                    setLoading(false);
+                });
 
-    .btn-green { background: #28a745; }
-    .btn-red { background: #dc3545; }
-    .btn-dark { background: #444; }
+                return () => {
+                    unsubControls();
+                    unsubTemp();
+                    unsubAttendance();
+                };
+            }, []);
 
-    #dashboard { display: none; }
-</style>
-</head>
+            const toggleControl = (key, currentState) => {
+                const newValue = currentState ? 0 : 1;
+                update(ref(db, 'controls'), { [key]: newValue });
+            };
 
-<body>
+            const updateTemperature = (e) => {
+                const val = parseFloat(e.target.value);
+                setTemperature(val);
+                set(ref(db, 'temperature'), val); // Update Firebase immediately
+            };
 
-<div class="box">
+            return (
+                <div className="min-h-screen bg-slate-900 pb-12">
+                    {/* Header */}
+                    <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-16 items-center">
+                                <div className="flex items-center gap-3">
+                                    <i className="ph ph-house-line text-2xl text-blue-500"></i>
+                                    <span className="font-bold text-xl tracking-tight">SmartHome<span className="text-blue-500">Hub</span></span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="hidden md:block text-sm text-slate-400">{user.email}</span>
+                                    <button 
+                                        onClick={() => signOut(auth)}
+                                        className="bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-300 px-4 py-2 rounded-lg text-sm transition-all"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
 
-    <!-- LOGIN -->
-    <div id="loginPage">
-        <h2>Login</h2>
-        <input id="email" type="email" placeholder="Email">
-        <input id="password" type="password" placeholder="Password">
-        <button class="btn-primary" onclick="login()">Login</button>
-        <p id="errorMsg" style="color:red; font-size:14px;"></p>
-    </div>
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+                        
+                        {/* Status Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            
+                            {/* Device Controls */}
+                            <div className="space-y-4">
+                                <h2 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-2">Device Control</h2>
+                                <ToggleSwitch 
+                                    label="Main Light" 
+                                    icon="ph-lightbulb" 
+                                    value={controls.light === 1} 
+                                    onChange={() => toggleControl('light', controls.light === 1)}
+                                    colorClass="bg-yellow-500 text-yellow-900"
+                                />
+                                <ToggleSwitch 
+                                    label="Ventilation Fan" 
+                                    icon="ph-fan" 
+                                    value={controls.fan === 1} 
+                                    onChange={() => toggleControl('fan', controls.fan === 1)}
+                                    colorClass="bg-blue-500 text-blue-900"
+                                />
+                            </div>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard">
-        <h2>Control Panel</h2>
+                            {/* Environment Monitor */}
+                            <div>
+                                <h2 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4">Environment</h2>
+                                <div className="glass-panel p-6 rounded-2xl h-[calc(100%-2rem)]">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div>
+                                            <p className="text-slate-400 text-sm">Room Temperature</p>
+                                            <h1 className="text-4xl font-bold mt-1">{temperature.toFixed(1)}°C</h1>
+                                        </div>
+                                        <div className={`p-3 rounded-full ${temperature > 25 ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                                            <i className="ph ph-thermometer text-2xl"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs text-slate-400">
+                                            <span>Simulate Sensor (Input)</span>
+                                            <span>{temperature}°C</span>
+                                        </div>
+                                        <input 
+                                            type="range" 
+                                            min="15" 
+                                            max="40" 
+                                            step="0.5" 
+                                            value={temperature}
+                                            onChange={updateTemperature}
+                                            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                        />
+                                        <p className="text-xs text-slate-500 mt-2">
+                                            Note: If Temp > 25.0°C, ESP32 auto-activates Fan.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-        <button class="btn-green" onclick="setLight(1)">Light ON</button>
-        <button class="btn-red" onclick="setLight(0)">Light OFF</button>
+                            {/* Quick Stats / connection */}
+                            <div>
+                                <h2 className="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-4">System Status</h2>
+                                <div className="glass-panel p-6 rounded-2xl h-[calc(100%-2rem)] flex flex-col justify-center items-center text-center">
+                                    <div className="relative mb-4">
+                                        <div className="absolute inset-0 bg-green-500 blur-lg opacity-20 animate-pulse"></div>
+                                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center border border-green-500/50 relative z-10">
+                                            <i className="ph ph-wifi-high text-green-400 text-3xl"></i>
+                                        </div>
+                                    </div>
+                                    <h3 className="font-semibold text-lg">System Online</h3>
+                                    <p className="text-slate-400 text-sm mt-1">Database Connected</p>
+                                    <div className="mt-4 px-3 py-1 bg-slate-800 rounded-full text-xs font-mono text-slate-400 border border-slate-700">
+                                        Project ID: esp-test-ff3e3
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-        <button class="btn-green" onclick="setFan(1)">Fan ON</button>
-        <button class="btn-red" onclick="setFan(0)">Fan OFF</button>
+                        {/* Attendance Log */}
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-sm uppercase tracking-wider text-slate-500 font-semibold">Access Logs</h2>
+                                <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">Live Updates</span>
+                            </div>
+                            
+                            <div className="glass-panel rounded-2xl overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-slate-800/50 text-xs uppercase text-slate-400">
+                                            <tr>
+                                                <th className="px-6 py-4 font-medium">Authorized Person</th>
+                                                <th className="px-6 py-4 font-medium">Access Time</th>
+                                                <th className="px-6 py-4 font-medium">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-700/50">
+                                            {loading ? (
+                                                <tr>
+                                                    <td colSpan="3" className="px-6 py-8 text-center text-slate-500">Loading records...</td>
+                                                </tr>
+                                            ) : attendance.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="3" className="px-6 py-8 text-center text-slate-500">No attendance records found yet.</td>
+                                                </tr>
+                                            ) : (
+                                                attendance.map((record, index) => (
+                                                    <tr key={index} className="hover:bg-slate-800/30 transition-colors">
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-xs">
+                                                                    {record.name.charAt(0)}
+                                                                </div>
+                                                                <span className="font-medium text-white">{record.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-slate-400 font-mono text-sm">
+                                                            {record.timestamp}
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                                                                Granted
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
-        <button class="btn-primary" onclick="openDoor()">Open Door</button>
+                    </main>
+                </div>
+            );
+        };
 
-        <button class="btn-dark" onclick="logout()">Logout</button>
-    </div>
+        const App = () => {
+            const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
 
-</div>
+            React.useEffect(() => {
+                const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    setUser(currentUser);
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
 
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut }
-    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getDatabase, ref, set }
-    from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+            if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-blue-500"><i className="ph ph-spinner animate-spin text-4xl"></i></div>;
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
-    authDomain: "esp-test-ff3e3.firebaseapp.com",
-    databaseURL: "https://esp-test-ff3e3-default-rtdb.firebaseio.com",
-    projectId: "esp-test-ff3e3",
-    storageBucket: "esp-test-ff3e3.appspot.com",
-    messagingSenderId: "YOUR_ID",
-    appId: "YOUR_APP_ID"
-};
+            return user ? <Dashboard user={user} /> : <Login />;
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-// LOGIN
-window.login = function () {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-
-    signInWithEmailAndPassword(auth, email, pass)
-    .then(() => {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-    })
-    .catch((e) => {
-        document.getElementById("errorMsg").innerText = "Login Failed!";
-    });
-};
-
-// LOGOUT
-window.logout = function () {
-    signOut(auth);
-    document.getElementById("dashboard").style.display = "none";
-    document.getElementById("loginPage").style.display = "block";
-};
-
-// CONTROLS
-window.setLight = (state) => set(ref(db, "/controls/light"), state);
-window.setFan = (state) => set(ref(db, "/controls/fan"), state);
-window.openDoor = () => set(ref(db, "/controls/door"), { action: "open", ts: Date.now() });
-
-</script>
-
-</body>
-</html>
-
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-// LOGIN
-window.login = function () {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-
-    signInWithEmailAndPassword(auth, email, pass)
-    .then(() => {
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-    })
-    .catch((e) => {
-        document.getElementById("errorMsg").innerText = "Login Failed!";
-    });
-};
-
-// LOGOUT
-window.logout = function () {
-    signOut(auth);
-    document.getElementById("dashboard").style.display = "none";
-    document.getElementById("loginPage").style.display = "block";
-};
-
-// CONTROLS
-window.setLight = (state) => set(ref(db, "/controls/light"), state);
-window.setFan = (state) => set(ref(db, "/controls/fan"), state);
-window.openDoor = () => set(ref(db, "/controls/door"), { action: "open", ts: Date.now() });
-
-</script>
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
