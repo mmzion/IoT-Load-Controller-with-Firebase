@@ -173,15 +173,19 @@
                 // Listen to Controls
                 const controlsRef = ref(db, 'controls');
                 const unsubControls = onValue(controlsRef, (snapshot) => {
-                    const data = snapshot.val() || { fan: 0, light: 0 };
-                    setControls(data);
+                    const data = snapshot.val();
+                    // Robustly handle data to prevent "other is not changing" issues if keys are missing
+                    setControls({
+                        fan: (data && data.fan) ? Number(data.fan) : 0,
+                        light: (data && data.light) ? Number(data.light) : 0
+                    });
                 });
 
                 // Listen to Temperature
                 const tempRef = ref(db, 'temperature');
                 const unsubTemp = onValue(tempRef, (snapshot) => {
                     const data = snapshot.val();
-                    if (data !== null) setTemperature(data);
+                    if (data !== null) setTemperature(Number(data));
                 });
 
                 // Listen to Attendance
@@ -209,10 +213,13 @@
 
             // FIX: Use set() on specific path instead of update(), and handle type conversion (== instead of ===)
             const toggleControl = (key, currentVal) => {
-                // If it's 1 (int) or "1" (string), we treat it as ON.
-                const isConfiguredOn = currentVal == 1; 
+                // Ensure currentVal is treated as a number for the logic
+                const numericVal = Number(currentVal);
+                const isConfiguredOn = numericVal === 1; 
                 const nextValue = isConfiguredOn ? 0 : 1;
                 
+                console.log(`Toggling ${key} from ${numericVal} to ${nextValue}`);
+
                 // Writing directly to /controls/fan or /controls/light
                 set(ref(db, `controls/${key}`), nextValue)
                     .catch((error) => console.error("Error updating " + key, error));
@@ -258,14 +265,14 @@
                                 <ToggleSwitch 
                                     label="Main Light" 
                                     icon="ph-lightbulb" 
-                                    value={controls.light == 1} 
+                                    value={controls.light === 1} 
                                     onChange={() => toggleControl('light', controls.light)}
                                     colorClass="bg-yellow-500 text-yellow-900"
                                 />
                                 <ToggleSwitch 
                                     label="Ventilation Fan" 
                                     icon="ph-fan" 
-                                    value={controls.fan == 1} 
+                                    value={controls.fan === 1} 
                                     onChange={() => toggleControl('fan', controls.fan)}
                                     colorClass="bg-blue-500 text-blue-900"
                                 />
