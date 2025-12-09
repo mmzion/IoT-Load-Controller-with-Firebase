@@ -1,29 +1,17 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <title>ESP32 Control Panel</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
-</head>
-<body>
-  <h1>ESP32 Remote Control</h1>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Classroom — Control Panel</title>
 
-  <div id="login">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
+  <!-- Firebase (modular SDK) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getDatabase, ref, onValue, set, push, limitToLast, query, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-  <div id="controls" style="display:none;">
-    <button onclick="setLight(1)">Turn Light ON</button>
-    <button onclick="setLight(0)">Turn Light OFF</button>
-    <br><br>
-    <button onclick="setFan(1)">Turn Fan ON</button>
-    <button onclick="setFan(0)">Turn Fan OFF</button>
-  </div>
-
-  <script>
+    // ------------- CONFIG: replace messagingSenderId / appId if available -------------
     const firebaseConfig = {
       apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
       authDomain: "esp-test-ff3e3.firebaseapp.com",
@@ -34,31 +22,392 @@
       appId: "YOUR_APP_ID"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    function login(){
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    // Exported helpers to the rest of this module
+    window.FB = { auth, db, refs: { controls: ref(db, '/controls'), attendance: ref(db, '/attendance'), logs: ref(db, '/esp_logs') } };
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          document.getElementById("login").style.display = "none";
-          document.getElementById("controls").style.display = "block";
-        })
-        .catch(error => {
-          alert("Login failed: " + error.message);
-        });
+    // Authentication helpers used by UI
+    window.authActions = {
+      signIn: async (email, pass) => signInWithEmailAndPassword(auth, email, pass),
+      signUp: async (email, pass) => createUserWithEmailAndPassword(auth, email, pass),
+      signOut: async () => signOut(auth)
+    };
+
+    // Keep the signed-in state handled by onAuthStateChanged; UI wiring is below (after CSS & DOM)
+    onAuthStateChanged(auth, user => {
+      const evt = new CustomEvent('fb-auth-change', { detail: { user } });
+      window.dispatchEvent(evt);
+    });
+  </script>
+
+  <style>
+    :root{
+      --bg:#f6f8fb; --card:#ffffff; --muted:#6b7280; --accent:#0ea5a4; --danger:#ef4444;
+      --glass: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);color:#111827}
+    .container{max-width:1100px;margin:28px auto;padding:22px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:1.25rem;margin:0}
+    .sub{color:var(--muted);font-size:.9rem}
+
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .grid{display:grid;gap:16px}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{padding:.5rem .8rem;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-ghost{background:transparent;border:1px solid #e6eef0;color:#0f172a}
+    .toggle{display:inline-flex;align-items:center;gap:8px}
+    .chip{background:#f1f5f9;padding:.25rem .5rem;border-radius:999px;font-weight:600}
+    .muted{color:var(--muted)}
+
+    /* layout */
+    .dashboard{display:grid;grid-template-columns:360px 1fr;gap:16px}
+    .stack{display:flex;flex-direction:column;gap:12px}
+
+    /* logs */
+    #logs{height:260px;overflow:auto;padding:.6rem;background:#08133a1a;border-radius:8px;font-family:monospace;font-size:.85rem;color:#0f172a}
+
+    /* attendance table */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.5rem .6rem;text-align:left;border-bottom:1px solid #f3f4f6;font-size:.92rem}
+    th{font-weight:700;color:#374151}
+
+    /* responsive */
+    @media (max-width:980px){
+      .dashboard{grid-template-columns:1fr; }
+      .grid.cols-3{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Smart Classroom — Control Panel</h1>
+        <div class="sub">ESP32 • Firebase Realtime DB • Live controls & attendance</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="connection" class="chip muted">Connecting...</div>
+        <div id="userInfo" class="muted">Not signed in</div>
+        <button id="btnSignOut" class="btn btn-ghost" style="display:none">Sign out</button>
+      </div>
+    </header>
+
+    <!-- auth card -->
+    <div id="authCard" class="card" style="margin-bottom:14px">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <input id="email" type="email" placeholder="Email" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6eef0" />
+        </div>
+        <div style="width:220px">
+          <input id="password" type="password" placeholder="Password" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6eef0" />
+        </div>
+        <div class="controls">
+          <button id="btnSignIn" class="btn btn-primary">Sign in</button>
+          <button id="btnRegister" class="btn">Register</button>
+        </div>
+      </div>
+      <div style="margin-top:8px" class="muted">Use an Email/Password account registered in your Firebase project.</div>
+    </div>
+
+    <div class="dashboard">
+      <!-- Left column: controls + logs -->
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-weight:700">Device Controls</div>
+              <div class="muted" style="font-size:.9rem">Control light, fan and trigger door remotely</div>
+            </div>
+            <div id="statusBadge" class="chip muted">Device: unknown</div>
+          </div>
+
+          <div style="margin-top:12px" class="grid cols-3">
+            <div class="card" style="padding:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:700">Light</div>
+                  <div class="muted" style="font-size:.85rem">GPIO -> LED</div>
+                </div>
+                <div>
+                  <button id="btnLightOn" class="btn btn-primary">ON</button>
+                  <button id="btnLightOff" class="btn">OFF</button>
+                </div>
+              </div>
+              <div style="margin-top:10px" class="muted">State: <span id="lightState">—</span></div>
+            </div>
+
+            <div class="card" style="padding:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:700">Fan</div>
+                  <div class="muted" style="font-size:.85rem">GPIO -> Fan driver</div>
+                </div>
+                <div>
+                  <button id="btnFanOn" class="btn btn-primary">ON</button>
+                  <button id="btnFanOff" class="btn">OFF</button>
+                </div>
+              </div>
+              <div style="margin-top:10px" class="muted">State: <span id="fanState">—</span></div>
+            </div>
+
+            <div class="card" style="padding:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:700">Door</div>
+                  <div class="muted" style="font-size:.85rem">Trigger servo open</div>
+                </div>
+                <div>
+                  <button id="btnDoor" class="btn btn-primary">Open</button>
+                </div>
+              </div>
+              <div style="margin-top:10px" class="muted">Last: <span id="doorLast">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">Live Activity Feed</div>
+            <div class="muted" style="font-size:.85rem">Realtime</div>
+          </div>
+          <div id="logs" aria-live="polite">No activity yet.</div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">Quick Actions</div>
+            <div class="muted" style="font-size:.85rem">One-click commands</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" onclick="setControls({ light:1, fan:1 })">Lights & Fan ON</button>
+            <button class="btn" onclick="setControls({ light:0, fan:0 })">All OFF</button>
+            <button class="btn" onclick="clearLogs()">Clear Logs</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: attendance + details -->
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">Attendance (last 10)</div>
+            <div class="muted" style="font-size:.85rem">Auto-updates</div>
+          </div>
+
+          <div style="max-height:340px;overflow:auto">
+            <table id="attendanceTable">
+              <thead><tr><th>Timestamp</th><th>Name</th></tr></thead>
+              <tbody><tr><td colspan="2" class="muted">No records yet.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">System & Setup</div>
+            <div class="muted" style="font-size:.85rem">Helpful links</div>
+          </div>
+          <div class="muted" style="font-size:.92rem">
+            • Firebase DB path: <code>/controls</code>, <code>/attendance</code>, <code>/esp_logs</code><br>
+            • Make sure Firebase rules allow authenticated reads/writes (dev rules shown in docs).<br>
+            • This UI expects the ESP32 to write human-readable logs to <code>/esp_logs</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI script (non-module) reads the module-initialized global FB and authActions -->
+  <script>
+    // Short helper
+    const $ = id => document.getElementById(id);
+
+    // UI elements
+    const btnSignIn = $('btnSignIn');
+    const btnRegister = $('btnRegister');
+    const btnSignOut = $('btnSignOut');
+    const userInfo = $('userInfo');
+    const connBadge = $('connection');
+    const authCard = $('authCard');
+
+    const btnLightOn = $('btnLightOn');
+    const btnLightOff = $('btnLightOff');
+    const btnFanOn = $('btnFanOn');
+    const btnFanOff = $('btnFanOff');
+    const btnDoor = $('btnDoor');
+
+    const lightStateEl = $('lightState');
+    const fanStateEl = $('fanState');
+    const doorLastEl = $('doorLast');
+    const logsEl = $('logs');
+    const attendanceTable = document.querySelector('#attendanceTable tbody');
+    const statusBadge = $('statusBadge');
+
+    // When Firebase module finished initializing it put FB and authActions on window
+    const waitForFB = () => new Promise(res => {
+      if (window.FB && window.authActions) return res();
+      const int = setInterval(()=>{ if(window.FB && window.authActions){ clearInterval(int); res(); }},50);
+      // fallback after 3s
+      setTimeout(res,3000);
+    });
+
+    (async ()=>{
+      await waitForFB();
+
+      // Local helpers: write small JSON keys used by ESP
+      window.setControls = async (obj) => {
+        try {
+          const db = window.FB.db;
+          // Write each individual control to /controls/<key>
+          for (const k of Object.keys(obj)){
+            await set(ref(db, '/controls/' + k), obj[k]);
+          }
+          appendLog('Set controls: ' + JSON.stringify(obj));
+        } catch(e){
+          appendLog('Error setControls: ' + e.message);
+        }
+      };
+
+      // Clear logs (local UI only and remove DB node)
+      window.clearLogs = async () => {
+        try {
+          await set(ref(window.FB.db, '/esp_logs'), null);
+          appendLog('Cleared /esp_logs');
+        } catch(e){ appendLog('Error clearing logs: ' + e.message); }
+      };
+
+      // Wire auth buttons
+      btnSignIn.onclick = async () => {
+        const email = $('email').value.trim();
+        const pass = $('password').value;
+        if (!email || !pass) { alert('Enter email & password'); return; }
+        try {
+          const cred = await window.authActions.signIn(email, pass);
+          appendLog('Signed in: ' + cred.user.email);
+        } catch(e){ alert('Sign in failed: ' + e.message); }
+      };
+      btnRegister.onclick = async () => {
+        const email = $('email').value.trim();
+        const pass = $('password').value;
+        if (!email || !pass) { alert('Enter email & password'); return; }
+        try {
+          const cred = await window.authActions.signUp(email, pass);
+          appendLog('Registered new user: ' + cred.user.email);
+        } catch(e){ alert('Register failed: ' + e.message); }
+      };
+      btnSignOut.onclick = async () => {
+        await window.authActions.signOut();
+      };
+
+      // Controls
+      btnLightOn.onclick = () => setControls({ light: 1 });
+      btnLightOff.onclick = () => setControls({ light: 0 });
+      btnFanOn.onclick = () => setControls({ fan: 1 });
+      btnFanOff.onclick = () => setControls({ fan: 0 });
+      btnDoor.onclick = async () => {
+        // set a structured command; ESP should clear/ack the command after handling
+        const cmd = { action: 'open', ts: Date.now(), by: (window.FB && window.FB.auth && window.FB.auth.currentUser) ? window.FB.auth.currentUser.email : 'web' };
+        await set(ref(window.FB.db, '/controls/door'), cmd);
+        appendLog('Triggered door: ' + JSON.stringify(cmd));
+      };
+
+      // React to auth state changes triggered in module
+      window.addEventListener('fb-auth-change', e => {
+        const user = e.detail.user;
+        if (user) {
+          userInfo.textContent = user.email;
+          btnSignOut.style.display = 'inline-block';
+          authCard.style.display = 'none';
+          appendLog('Session: ' + user.email);
+        } else {
+          userInfo.textContent = 'Not signed in';
+          btnSignOut.style.display = 'none';
+          authCard.style.display = 'block';
+        }
+      });
+
+      // Subscribe to realtime DB nodes
+      const db = window.FB.db;
+      // controls/light
+      onValue(ref(db, '/controls/light'), snap => {
+        const v = snap.exists() ? snap.val() : null;
+        lightStateEl.textContent = v === null ? '—' : v;
+        appendLog('controls/light -> ' + JSON.stringify(v));
+      });
+      // controls/fan
+      onValue(ref(db, '/controls/fan'), snap => {
+        const v = snap.exists() ? snap.val() : null;
+        fanStateEl.textContent = v === null ? '—' : v;
+        appendLog('controls/fan -> ' + JSON.stringify(v));
+      });
+      // controls/door (observe last command)
+      onValue(ref(db, '/controls/door'), snap => {
+        const v = snap.exists() ? snap.val() : null;
+        doorLastEl.textContent = v ? (new Date(v.ts || Date.now())).toLocaleString() + ' (' + (v.by||'web') + ')' : '—';
+        appendLog('controls/door -> ' + JSON.stringify(v));
+      });
+
+      // Listen for last 50 logs (esp_logs)
+      const logsQuery = query(ref(db, '/esp_logs'), limitToLast(50));
+      onChildAdded(logsQuery, snap => {
+        appendLog('[esp] ' + snap.key + ': ' + snap.val());
+      });
+
+      // Attendance: listen for last 10 child_added and add to table
+      const attendanceQuery = query(ref(db, '/attendance'), limitToLast(10));
+      onChildAdded(attendanceQuery, snap => {
+        // snap.key is timestamp string; snap.val() is name
+        renderAttendanceRow(snap.key, snap.val());
+      });
+
+      // Try to detect device online status by reading a small "heartbeat" value (optional)
+      // If ESP writes a 'status' node with 'online' & timestamp, show it
+      onValue(ref(db, '/status'), snap => {
+        if (!snap.exists()) { statusBadge.textContent = 'Device: unknown'; return; }
+        const s = snap.val();
+        statusBadge.textContent = (s.online ? 'Device: online' : 'Device: offline') + (s.ts ? ' • ' + new Date(s.ts).toLocaleString() : '');
+      });
+
+      // connection indicator (simple): show connected when Firebase DB is reachable
+      // Use /.info/connected if you enable it — here we rely on last fetch success
+      connBadge.textContent = 'Connected';
+      connBadge.classList.remove('muted');
+      appendLog('Connected to Firebase DB');
+
+    })();
+
+    // small UI helpers
+    function appendLog(text){
+      const now = new Date().toLocaleString();
+      logsEl.textContent = `${now} — ${text}\n` + logsEl.textContent;
+    }
+    function renderAttendanceRow(ts, name){
+      // ts is key, try to parse if possible
+      let human = ts;
+      if (/^\d{4}-\d{2}-\d{2}/.test(ts)) human = ts; // your server timestamp format
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td');
+      td1.textContent = human;
+      const td2 = document.createElement('td');
+      td2.textContent = name;
+      tr.appendChild(td1); tr.appendChild(td2);
+      // add to top
+      if(attendanceTable.querySelector('.muted')) attendanceTable.innerHTML=''; // remove placeholder
+      attendanceTable.insertBefore(tr, attendanceTable.firstChild);
+      // keep only last 20 rows
+      while(attendanceTable.children.length > 20) attendanceTable.removeChild(attendanceTable.lastChild);
     }
 
-    function setLight(state){
-      db.ref("/controls/light").set(state);
-    }
-
-    function setFan(state){
-      db.ref("/controls/fan").set(state);
-    }
+    // tiny helper to get ref (avoids import in this script)
+    function ref(db, path){ return window.FB && window.FB.db ? window.FB.db.ref(path) : null; }
   </script>
 </body>
 </html>
