@@ -24,6 +24,14 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #fbbf24;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #fbbf24;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -73,57 +81,55 @@
     </div>
 
     <!-- DASHBOARD SCREEN (Hidden by default) -->
-    <div id="dashboard-screen" class="hidden bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden fade-in">
+    <div id="dashboard-screen" class="hidden w-full max-w-4xl fade-in space-y-4">
         
-        <!-- Header -->
-        <div class="bg-blue-600 p-6 text-white flex justify-between items-start">
-            <div>
-                <h1 class="text-2xl font-bold">ESP32 Control</h1>
-                <p id="userEmailDisplay" class="text-blue-100 text-xs mt-1 truncate max-w-[150px]">user@email.com</p>
+        <!-- Top Bar -->
+        <div class="bg-white rounded-2xl shadow-md p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800">Control Panel</h1>
+                    <div id="connectionStatus" class="flex items-center space-x-1 text-xs text-yellow-500 font-medium">
+                        <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
+                        <span>Connecting to ESP32...</span>
+                    </div>
+                </div>
             </div>
-            <button id="btnLogout" class="bg-blue-700 hover:bg-blue-800 p-2 rounded-lg text-xs transition-colors" title="Logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <div class="flex items-center space-x-4">
+                <p id="userEmailDisplay" class="hidden md:block text-gray-500 text-xs text-right">user@email.com</p>
+                <button id="btnLogout" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Connection Status -->
-        <div class="px-6 py-2 bg-gray-50 border-b flex justify-between items-center">
-            <span class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Status</span>
-            <div id="connectionStatus" class="flex items-center space-x-2 text-yellow-500">
-                <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
-                <span class="text-sm font-medium">Connecting...</span>
-            </div>
-        </div>
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <!-- Content -->
-        <div class="p-6 space-y-8">
-
-            <!-- Temperature Control Section -->
-            <div class="bg-blue-50 rounded-xl p-5 border border-blue-100 shadow-sm">
+            <!-- Card 1: Thermostat (Controls GPIO 13 Fan) -->
+            <div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-blue-500">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h2 class="text-gray-800 font-bold text-lg">Thermostat</h2>
-                        <p class="text-gray-500 text-xs">Set Fan Threshold</p>
+                        <p class="text-gray-500 text-xs">Controls Fan (GPIO 13)</p>
                     </div>
                     <div id="fanIcon" class="text-gray-300 transition-colors duration-300">
                         <i class="fas fa-fan fa-2x"></i>
                     </div>
                 </div>
 
-                <!-- Digital Display -->
-                <div class="flex justify-center items-baseline my-6">
-                    <span id="tempDisplay" class="text-5xl font-bold text-gray-800">--</span>
-                    <span class="text-xl text-gray-500 ml-1">°C</span>
-                </div>
-
-                <!-- Status Badge -->
-                <div class="flex justify-center mb-6">
-                    <span id="fanStatusBadge" class="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-500">
-                        Fan Status: UNKNOWN
+                <div class="flex justify-between items-end my-6">
+                    <div>
+                        <span id="tempDisplay" class="text-5xl font-bold text-gray-800">--</span>
+                        <span class="text-xl text-gray-500 ml-1">°C</span>
+                    </div>
+                    <span id="fanStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-400">
+                        UNKNOWN
                     </span>
                 </div>
 
-                <!-- Slider -->
                 <div class="relative pt-1">
                     <input 
                         type="range" 
@@ -131,7 +137,7 @@
                         max="40" 
                         step="0.1" 
                         id="tempSlider" 
-                        class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
                         disabled
                     >
                     <div class="flex justify-between text-xs text-gray-400 mt-2">
@@ -142,29 +148,54 @@
                 </div>
             </div>
 
-            <!-- Activity Log -->
-            <div class="border-t pt-4">
-                <h3 class="text-gray-600 font-semibold mb-3 text-sm uppercase">Recent Activity</h3>
-                <div class="space-y-3">
-                    <div class="flex items-center text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                        <i class="fas fa-wifi text-green-400 mr-3"></i>
-                        <span>System Online</span>
+            <!-- Card 2: Light Control (Controls GPIO 33 Light) -->
+            <div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-yellow-400">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-gray-800 font-bold text-lg">Room Light</h2>
+                        <p class="text-gray-500 text-xs">Controls Light (GPIO 33)</p>
                     </div>
+                    <div id="lightIcon" class="text-gray-300 transition-colors duration-300">
+                        <i class="fas fa-lightbulb fa-2x"></i>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center my-6 h-24">
+                    <div class="relative inline-block w-16 h-8 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="lightToggle" class="toggle-checkbox absolute block w-8 h-8 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 transition-all duration-300"/>
+                        <label for="lightToggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                    </div>
+                    <p id="lightStatusText" class="mt-3 text-sm font-semibold text-gray-400">OFF</p>
                 </div>
             </div>
 
         </div>
+
+        <!-- Section 3: Access Logs (Reads /access_logs) -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <h3 class="text-gray-800 font-bold text-lg mb-4 flex items-center">
+                <i class="fas fa-shield-alt text-green-500 mr-2"></i> Security Access Logs
+            </h3>
+            <div class="overflow-hidden">
+                <ul id="accessLogList" class="divide-y divide-gray-100">
+                    <li class="py-4 text-center text-gray-400 text-sm italic">
+                        Waiting for access data from ESP32...
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         // --------------------------------------------------------------
-        // CONFIGURATION
+        // CONFIGURATION (MATCHES ARDUINO)
         // --------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyBx5fYrM_mVwn9pfgf5fjSxRIOvB8ViTko",
@@ -185,6 +216,7 @@
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         
+        // Auth UI
         const emailInput = document.getElementById('emailInput');
         const passwordInput = document.getElementById('passwordInput');
         const btnLogin = document.getElementById('btnLogin');
@@ -193,63 +225,62 @@
         const authErrorMessage = document.getElementById('authErrorMessage');
         const userEmailDisplay = document.getElementById('userEmailDisplay');
 
+        // Dashboard UI - Thermostat
         const tempSlider = document.getElementById('tempSlider');
         const tempDisplay = document.getElementById('tempDisplay');
         const fanIcon = document.getElementById('fanIcon');
         const fanStatusBadge = document.getElementById('fanStatusBadge');
         const connectionStatus = document.getElementById('connectionStatus');
 
-        // Reference to the 'temperature' node in Firebase
+        // Dashboard UI - Light
+        const lightToggle = document.getElementById('lightToggle');
+        const lightIcon = document.getElementById('lightIcon');
+        const lightStatusText = document.getElementById('lightStatusText');
+
+        // Dashboard UI - Logs
+        const accessLogList = document.getElementById('accessLogList');
+
+        // References to Firebase Nodes (MATCHES ARDUINO)
         const tempRef = ref(db, 'temperature');
+        const lightRef = ref(db, 'light_status');
+        const logsRef = query(ref(db, 'access_logs'), limitToLast(5)); // Get last 5 logs
 
         // --------------------------------------------------------------
         // AUTHENTICATION LOGIC
         // --------------------------------------------------------------
 
-        // Check Login State
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in.
+                // User is signed in
                 loginScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
+                dashboardScreen.classList.add('flex', 'flex-col'); // Correct flex display
                 userEmailDisplay.textContent = user.email;
-                startDataListener(); // Start listening to DB
+                startDataListeners();
             } else {
-                // User is signed out.
+                // User is signed out
                 loginScreen.classList.remove('hidden');
                 dashboardScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('flex', 'flex-col');
             }
         });
 
-        // Login Button
         btnLogin.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             authErrorMessage.classList.add('hidden');
-
-            signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => {
-                    showError(error.message);
-                });
+            signInWithEmailAndPassword(auth, email, password).catch((error) => showError(error.message));
         });
 
-        // Signup Button
         btnSignup.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             authErrorMessage.classList.add('hidden');
-
-            createUserWithEmailAndPassword(auth, email, password)
-                .catch((error) => {
-                    showError(error.message);
-                });
+            createUserWithEmailAndPassword(auth, email, password).catch((error) => showError(error.message));
         });
 
-        // Logout Button
         btnLogout.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                console.log('Signed Out');
-            });
+            signOut(auth);
         });
 
         function showError(msg) {
@@ -258,65 +289,125 @@
         }
 
         // --------------------------------------------------------------
-        // DATA LOGIC (Fan & Temp)
+        // DATA LOGIC (SYNC WITH ARDUINO)
         // --------------------------------------------------------------
-        function startDataListener() {
+        function startDataListeners() {
+            
+            // 1. THERMOSTAT LISTENER (/temperature)
             onValue(tempRef, (snapshot) => {
                 const data = snapshot.val();
                 
-                connectionStatus.innerHTML = `
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span class="text-sm font-medium text-green-600">Online</span>
-                `;
+                connectionStatus.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span>Synced</span>`;
+                connectionStatus.classList.replace("text-yellow-500", "text-green-500");
                 tempSlider.disabled = false;
 
                 if (data !== null) {
                     const temp = parseFloat(data);
-                    
-                    // Update Slider and Text
                     tempDisplay.innerText = temp.toFixed(1);
                     tempSlider.value = temp;
-
-                    // Update Fan UI Logic (Threshold > 25.0)
                     updateFanUI(temp);
                 }
-            }, (error) => {
-                console.error("Firebase Read Error:", error);
-                connectionStatus.innerHTML = `
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                    <span class="text-sm font-medium text-red-600">Permission Denied</span>
-                `;
+            });
+
+            // 2. LIGHT LISTENER (/light_status)
+            onValue(lightRef, (snapshot) => {
+                const isLightOn = snapshot.val() === true; // Ensure boolean
+                updateLightUI(isLightOn);
+            });
+
+            // 3. ACCESS LOGS LISTENER (/access_logs)
+            onValue(logsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    renderLogs(data);
+                } else {
+                    accessLogList.innerHTML = `<li class="py-4 text-center text-gray-400 text-sm italic">No recent access logs found.</li>`;
+                }
             });
         }
 
-        // Write data changes
-        tempSlider.addEventListener('input', (e) => {
-            if (!auth.currentUser) return; 
+        // --- Writers (User Actions) ---
 
+        // Thermostat Write
+        tempSlider.addEventListener('input', (e) => {
+            if (!auth.currentUser) return;
             const newTemp = parseFloat(e.target.value);
             tempDisplay.innerText = newTemp.toFixed(1);
             updateFanUI(newTemp);
-            
-            set(tempRef, newTemp).catch((error) => {
-                console.error("Write Error", error);
-            });
+            set(tempRef, newTemp); // Arduino reads this
         });
 
-        // Helper to update visual elements
+        // Light Write
+        lightToggle.addEventListener('change', (e) => {
+            if (!auth.currentUser) return;
+            const newState = e.target.checked;
+            updateLightUI(newState);
+            set(lightRef, newState); // Arduino reads this
+        });
+
+
+        // --- UI Updaters ---
+
         function updateFanUI(temp) {
             if (temp > 25.0) {
-                // Fan ON styling
                 fanIcon.classList.remove('text-gray-300');
                 fanIcon.classList.add('text-blue-500', 'animate-spin'); 
-                fanStatusBadge.className = "px-3 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-700 transition-all";
+                fanStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700";
                 fanStatusBadge.innerText = "FAN ON";
             } else {
-                // Fan OFF styling
                 fanIcon.classList.remove('text-blue-500', 'animate-spin');
                 fanIcon.classList.add('text-gray-300');
-                fanStatusBadge.className = "px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-500 transition-all";
+                fanStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500";
                 fanStatusBadge.innerText = "FAN OFF";
             }
+        }
+
+        function updateLightUI(isOn) {
+            lightToggle.checked = isOn;
+            if (isOn) {
+                lightIcon.classList.remove('text-gray-300');
+                lightIcon.classList.add('text-yellow-400');
+                lightStatusText.innerText = "ON";
+                lightStatusText.classList.replace("text-gray-400", "text-yellow-500");
+            } else {
+                lightIcon.classList.remove('text-yellow-400');
+                lightIcon.classList.add('text-gray-300');
+                lightStatusText.innerText = "OFF";
+                lightStatusText.classList.replace("text-yellow-500", "text-gray-400");
+            }
+        }
+
+        function renderLogs(data) {
+            accessLogList.innerHTML = '';
+            // Convert object to array and reverse (newest first)
+            const logs = Object.values(data).reverse(); 
+
+            logs.forEach(log => {
+                const li = document.createElement('li');
+                li.className = "py-3 flex items-center justify-between";
+                
+                // Defaults if data is missing
+                const name = log.name || "Unknown User";
+                const time = log.timestamp || "Unknown Time";
+                const statusColor = log.granted ? "text-green-500" : "text-red-500";
+                const icon = log.granted ? "fa-check-circle" : "fa-times-circle";
+
+                li.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="bg-gray-100 p-2 rounded-full mr-3 text-gray-500">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">${name}</p>
+                            <p class="text-xs text-gray-400">${time}</p>
+                        </div>
+                    </div>
+                    <div class="${statusColor}">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                `;
+                accessLogList.appendChild(li);
+            });
         }
     </script>
 </body>
