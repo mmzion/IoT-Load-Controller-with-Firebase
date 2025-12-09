@@ -207,9 +207,15 @@
                 };
             }, []);
 
-            const toggleControl = (key, currentState) => {
-                const newValue = currentState ? 0 : 1;
-                update(ref(db, 'controls'), { [key]: newValue });
+            // FIX: Use set() on specific path instead of update(), and handle type conversion (== instead of ===)
+            const toggleControl = (key, currentVal) => {
+                // If it's 1 (int) or "1" (string), we treat it as ON.
+                const isConfiguredOn = currentVal == 1; 
+                const nextValue = isConfiguredOn ? 0 : 1;
+                
+                // Writing directly to /controls/fan or /controls/light
+                set(ref(db, `controls/${key}`), nextValue)
+                    .catch((error) => console.error("Error updating " + key, error));
             };
 
             const updateTemperature = (e) => {
@@ -252,15 +258,15 @@
                                 <ToggleSwitch 
                                     label="Main Light" 
                                     icon="ph-lightbulb" 
-                                    value={controls.light === 1} 
-                                    onChange={() => toggleControl('light', controls.light === 1)}
+                                    value={controls.light == 1} 
+                                    onChange={() => toggleControl('light', controls.light)}
                                     colorClass="bg-yellow-500 text-yellow-900"
                                 />
                                 <ToggleSwitch 
                                     label="Ventilation Fan" 
                                     icon="ph-fan" 
-                                    value={controls.fan === 1} 
-                                    onChange={() => toggleControl('fan', controls.fan === 1)}
+                                    value={controls.fan == 1} 
+                                    onChange={() => toggleControl('fan', controls.fan)}
                                     colorClass="bg-blue-500 text-blue-900"
                                 />
                             </div>
