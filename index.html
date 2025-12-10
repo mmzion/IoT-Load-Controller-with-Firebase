@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Access Professional Dashboard</title>
+    <title>ClassroomX: IoT-based Smart Classroom</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -158,10 +153,11 @@
                     <div className="glass-card p-8 rounded-2xl w-full max-w-md relative z-10 animate-enter">
                         <div className="text-center mb-8">
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20 text-white mb-4">
-                                <i className="ph-fill ph-house-line text-3xl"></i>
+                                <i className="ph-fill ph-chalkboard-teacher text-3xl"></i>
                             </div>
-                            <h2 className="text-2xl font-bold text-white tracking-tight">Smart Access</h2>
-                            <p className="text-slate-400 text-sm mt-1">Authentication Required</p>
+                            {/* UPDATED HEADER NAME */}
+                            <h2 className="text-2xl font-bold text-white tracking-tight">ClassroomX</h2>
+                            <p className="text-slate-400 text-sm mt-1">IoT-based Smart Classroom</p>
                         </div>
 
                         {error && (
@@ -181,7 +177,7 @@
                                         type="email" 
                                         required
                                         className="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                                        placeholder="admin@iot.com"
+                                        placeholder="admin@classroomx.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
@@ -336,9 +332,10 @@
                         <div className="p-6">
                             <div className="flex items-center gap-3 text-white mb-8">
                                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                                    <i className="ph-bold ph-circles-three text-xl"></i>
+                                    <i className="ph-bold ph-chalkboard-teacher text-xl"></i>
                                 </div>
-                                <span className="font-bold text-lg tracking-tight">IoT Admin</span>
+                                {/* UPDATED SIDEBAR NAME */}
+                                <span className="font-bold text-lg tracking-tight">ClassroomX</span>
                             </div>
                             
                             <nav className="space-y-1">
@@ -509,7 +506,7 @@
                         </div>
                         
                         <footer className="mt-8 text-center text-slate-600 text-xs">
-                            <p>IoT Dashboard System v2.0 • Powered by React & Firebase</p>
+                            <p>ClassroomX Dashboard • Powered by React & Firebase</p>
                         </footer>
 
                     </main>
